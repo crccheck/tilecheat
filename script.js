@@ -171,8 +171,8 @@
       resultGrid["" + positionX + "." + positionY] = neighbor[1];
     }
     mapping = normalizeResultGrid(resultGrid);
-    canvas.width = canvas.width * 2;
-    canvas.height = canvas.height * 2;
+    canvas.width = canvas.width * 1.25;
+    canvas.height = canvas.height * 1;
     _results = [];
     for (dTile in mapping) {
       if (!__hasProp.call(mapping, dTile)) continue;

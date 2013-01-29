@@ -139,8 +139,8 @@ main = ->
   mapping = normalizeResultGrid resultGrid
 
   # c.clearRect(0, 0, canvas.width, canvas.height)
-  canvas.width = canvas.width * 2
-  canvas.height = canvas.height * 2
+  canvas.width = canvas.width * 1.25
+  canvas.height = canvas.height * 1
   for own dTile, sTile  of mapping
     sBits = sTile.split('.')
     dBits = dTile.split('.')
