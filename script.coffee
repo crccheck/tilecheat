@@ -96,8 +96,21 @@ main = ->
     col = i % n_slices
     edgeData.push getEdgeData(imageData.data, row, col)
 
+  # attempt 1, the long, stupid, dirty way
+  resultGrid = {}
   start = edgeData.pop()
-  console.log start, findNeighbor(start, edgeData)
+  positionX = 0
+  positionY = 0
+  resultGrid["#{positionX}.#{positionY}"] = start.id
+  neighbor = findNeighbor(start, edgeData)
+  switch neighbor[2]
+    when "n" then positionY--
+    when "s" then positionY++
+    when "e" then positionX++
+    when "w" then positionX--
+  resultGrid["#{positionX}.#{positionY}"] = neighbor[1]
+
+  console.log resultGrid
 
 
 

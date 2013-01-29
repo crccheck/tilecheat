@@ -98,7 +98,7 @@
   };
 
   main = function() {
-    var c, canvas, col, edgeData, i, imageData, img, num, row, slices, start, _i, _len;
+    var c, canvas, col, edgeData, i, imageData, img, neighbor, num, positionX, positionY, resultGrid, row, slices, start, _i, _len;
     img = $('img')[0];
     width = img.width;
     slice_w = width / n_slices;
@@ -114,8 +114,27 @@
       col = i % n_slices;
       edgeData.push(getEdgeData(imageData.data, row, col));
     }
+    resultGrid = {};
     start = edgeData.pop();
-    console.log(start, findNeighbor(start, edgeData));
+    positionX = 0;
+    positionY = 0;
+    resultGrid["" + positionX + "." + positionY] = start.id;
+    neighbor = findNeighbor(start, edgeData);
+    switch (neighbor[2]) {
+      case "n":
+        positionY--;
+        break;
+      case "s":
+        positionY++;
+        break;
+      case "e":
+        positionX++;
+        break;
+      case "w":
+        positionX--;
+    }
+    resultGrid["" + positionX + "." + positionY] = neighbor[1];
+    console.log(resultGrid);
     return c.putImageData(imageData, 0, 0);
   };
 
