@@ -144,6 +144,9 @@
         case "w":
           positionX--;
       }
+      if (resultGrid["" + positionX + "." + positionY]) {
+        console.log("oops, position already taken");
+      }
       resultGrid["" + positionX + "." + positionY] = neighbor[1];
     }
     console.log(resultGrid);
