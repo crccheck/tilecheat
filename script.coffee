@@ -103,31 +103,22 @@ main = ->
   positionY = 0
   resultGrid["#{positionX}.#{positionY}"] = start.id
 
-  neighbor = findNeighbor(start, edgeData)
-  newEdgeData = []
-  for x in edgeData
-    if x.id == neighbor[1]
-      start = x
-    else
-      newEdgeData.push x
-  edgeData = newEdgeData
-  switch neighbor[2]
-    when "n" then positionY--
-    when "s" then positionY++
-    when "e" then positionX++
-    when "w" then positionX--
-  resultGrid["#{positionX}.#{positionY}"] = neighbor[1]
+  while edgeData.length
+    neighbor = findNeighbor(start, edgeData)
+    newEdgeData = []
+    for x in edgeData
+      if x.id == neighbor[1]
+        start = x
+      else
+        newEdgeData.push x
+    edgeData = newEdgeData
+    switch neighbor[2]
+      when "n" then positionY--
+      when "s" then positionY++
+      when "e" then positionX++
+      when "w" then positionX--
+    resultGrid["#{positionX}.#{positionY}"] = neighbor[1]
 
-  neighbor = findNeighbor(start, edgeData)
-  newEdgeData = []
-  newEdgeData.push x for x in edgeData when x.id != neighbor[1]
-  edgeData = newEdgeData
-  switch neighbor[2]
-    when "n" then positionY--
-    when "s" then positionY++
-    when "e" then positionX++
-    when "w" then positionX--
-  resultGrid["#{positionX}.#{positionY}"] = neighbor[1]
   console.log resultGrid
 
 
