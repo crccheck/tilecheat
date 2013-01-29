@@ -23,6 +23,7 @@ getEdgeData = (d, m, n) ->
   y_begin = n * slice_w
   y_end = y_begin + slice_w - 1
   data =
+    id: "#{m}.#{n}"
     grid:
       m: m
       n: n
@@ -39,6 +40,44 @@ getEdgeData = (d, m, n) ->
   return data
 
 
+# get the accumulated difference between two arrays
+difference = (d1, d2) ->
+  sum = 0
+  for value, i in d1
+    sum += Math.abs(d2[i] - value)
+  return sum
+
+
+# for Array.sort
+bestMatchSort = (a, b) -> a[0] - b[0]
+
+
+findNeighbor = (start, edgeData)->
+  allMatches = []
+  # find north match
+  currentMatches = []
+  for data in edgeData
+    currentMatches.push([difference(start.n, data.s), data.id, "n"])
+  allMatches.push(currentMatches.sort(bestMatchSort)[0])
+  # find south match
+  currentMatches = []
+  for data in edgeData
+    currentMatches.push([difference(start.s, data.n), data.id, "s"])
+  allMatches.push(currentMatches.sort(bestMatchSort)[0])
+  # find east match
+  currentMatches = []
+  for data in edgeData
+    currentMatches.push([difference(start.e, data.w), data.id, "e"])
+  allMatches.push(currentMatches.sort(bestMatchSort)[0])
+  # find west match
+  currentMatches = []
+  for data in edgeData
+    currentMatches.push([difference(start.w, data.e), data.id, "w"])
+  allMatches.push(currentMatches.sort(bestMatchSort)[0])
+
+  bestMatch = allMatches.sort(bestMatchSort)[0]
+
+
 main = ->
   img = $('img')[0]
   width = img.width
@@ -49,12 +88,19 @@ main = ->
   c.drawImage(img, 0, 0, 240, 240)
 
   imageData = c.getImageData(0, 0, canvas.width, canvas.height)
+  edgeData = []
 
   slices = new Array(n_slices * n_slices)
   for num, i in slices
     row = Math.floor(i / n_slices)
     col = i % n_slices
-    console.log getEdgeData(imageData.data, row, col)
+    edgeData.push getEdgeData(imageData.data, row, col)
+
+  start = edgeData.pop()
+  console.log start, findNeighbor(start, edgeData)
+
+
+
 
     # console.log row * slice_w, col * slice_w
 
