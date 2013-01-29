@@ -113,17 +113,40 @@ main = ->
 
   # attempt 1, the long, stupid, dirty way
   resultGrid = {}
+  reverseResultGrid = {}
   start = edgeData.pop()
   positionX = 0
   positionY = 0
   resultGrid["#{positionX}.#{positionY}"] = start.id
+  reverseResultGrid[start.id] = "#{positionX}.#{positionY}"
+  placedTiles = [start]
+
+  threshold = 1000
 
   while edgeData.length
-    neighbor = findNeighbor(start, edgeData)
+    console.log "Iteration Start", placedTiles.length
+    attempts = 15
+    neighbor = null
+    while (neighbor = findNeighbor(start, edgeData, threshold))[0] > threshold
+      # no neighbor meeting threshold found, pick a new start
+      console.log "no neighbor meeting threshold found, pick a new start", neighbor
+      start = placedTiles[Math.floor(Math.random() * placedTiles.length)]
+      bits = reverseResultGrid[start.id].split('.')
+      positionX = bits[0]
+      positionY = bits[1]
+      if !--attempts
+        attempts = 15
+        threshold = threshold * 1.1
+        console.log "Raising threshold: #{threshold}"
+      if threshold > 100000
+        console.error "oops", findNeighbor(start, edgeData, threshold)
+        return
+    console.log "Neighbor found", neighbor
     newEdgeData = []
     for x in edgeData
       if x.id == neighbor[1]
         start = x
+        placedTiles.push x
       else
         newEdgeData.push x
     switch neighbor[2]
@@ -134,12 +157,13 @@ main = ->
     if !resultGrid["#{positionX}.#{positionY}"]
       edgeData = newEdgeData
       resultGrid["#{positionX}.#{positionY}"] = neighbor[1]
+      reverseResultGrid[neighbor[1]] = "#{positionX}.#{positionY}"
 
   mapping = normalizeResultGrid resultGrid
 
-  # c.clearRect(0, 0, canvas.width, canvas.height)
-  canvas.width = canvas.width * 1.5
-  canvas.height = canvas.height * 1.5
+  c.clearRect(0, 0, canvas.width, canvas.height)
+  # canvas.width = canvas.width * 1.5
+  # canvas.height = canvas.height * 1.5
   for own dTile, sTile  of mapping
     sBits = sTile.split('.')
     dBits = dTile.split('.')

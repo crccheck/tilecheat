@@ -119,7 +119,7 @@
   };
 
   main = function() {
-    var c, canvas, col, dBits, dTile, edgeData, i, imageData, img, mapping, neighbor, newEdgeData, num, positionX, positionY, resultGrid, row, sBits, sTile, slices, start, x, _i, _j, _len, _len1, _results;
+    var attempts, bits, c, canvas, col, dBits, dTile, edgeData, i, imageData, img, mapping, neighbor, newEdgeData, num, placedTiles, positionX, positionY, resultGrid, reverseResultGrid, row, sBits, sTile, slices, start, threshold, x, _i, _j, _len, _len1, _results;
     img = $('img')[0];
     width = img.width;
     slice_w = width / n_slices;
@@ -136,17 +136,41 @@
       edgeData.push(getEdgeData(imageData.data, row, col));
     }
     resultGrid = {};
+    reverseResultGrid = {};
     start = edgeData.pop();
     positionX = 0;
     positionY = 0;
     resultGrid["" + positionX + "." + positionY] = start.id;
+    reverseResultGrid[start.id] = "" + positionX + "." + positionY;
+    placedTiles = [start];
+    threshold = 1000;
     while (edgeData.length) {
-      neighbor = findNeighbor(start, edgeData);
+      console.log("Iteration Start", placedTiles.length);
+      attempts = 15;
+      neighbor = null;
+      while ((neighbor = findNeighbor(start, edgeData, threshold))[0] > threshold) {
+        console.log("no neighbor meeting threshold found, pick a new start", neighbor);
+        start = placedTiles[Math.floor(Math.random() * placedTiles.length)];
+        bits = reverseResultGrid[start.id].split('.');
+        positionX = bits[0];
+        positionY = bits[1];
+        if (!--attempts) {
+          attempts = 15;
+          threshold = threshold * 1.1;
+          console.log("Raising threshold: " + threshold);
+        }
+        if (threshold > 100000) {
+          console.error("oops", findNeighbor(start, edgeData, threshold));
+          return;
+        }
+      }
+      console.log("Neighbor found", neighbor);
       newEdgeData = [];
       for (_j = 0, _len1 = edgeData.length; _j < _len1; _j++) {
         x = edgeData[_j];
         if (x.id === neighbor[1]) {
           start = x;
+          placedTiles.push(x);
         } else {
           newEdgeData.push(x);
         }
@@ -167,11 +191,11 @@
       if (!resultGrid["" + positionX + "." + positionY]) {
         edgeData = newEdgeData;
         resultGrid["" + positionX + "." + positionY] = neighbor[1];
+        reverseResultGrid[neighbor[1]] = "" + positionX + "." + positionY;
       }
     }
     mapping = normalizeResultGrid(resultGrid);
-    canvas.width = canvas.width * 1.5;
-    canvas.height = canvas.height * 1.5;
+    c.clearRect(0, 0, canvas.width, canvas.height);
     _results = [];
     for (dTile in mapping) {
       if (!__hasProp.call(mapping, dTile)) continue;
