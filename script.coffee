@@ -78,6 +78,21 @@ findNeighbor = (start, edgeData)->
   bestMatch = allMatches.sort(bestMatchSort)[0]
 
 
+# make sure the top left is 0.0
+normalizeResultGrid = (input) ->
+  minX = 99
+  minY = 99
+  for own key of input
+    bits = key.split('.')
+    minX = Math.min(minX, bits[0])
+    minY = Math.min(minY, bits[1])
+  newObj = {}
+  for own key, value of input
+    bits = key.split('.')
+    newObj["#{bits[0] - minX}.#{bits[1] - minY}"] = value
+  return newObj
+
+
 main = ->
   img = $('img')[0]
   width = img.width
@@ -121,7 +136,7 @@ main = ->
       console.log "oops, position already taken"
     resultGrid["#{positionX}.#{positionY}"] = neighbor[1]
 
-  console.log resultGrid
+  console.log normalizeResultGrid resultGrid
 
 
 
@@ -129,7 +144,6 @@ main = ->
     # console.log row * slice_w, col * slice_w
 
 
-  c.putImageData(imageData, 0, 0)
 
 
 $(window).load(->
