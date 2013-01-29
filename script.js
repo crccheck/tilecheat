@@ -151,7 +151,6 @@
           newEdgeData.push(x);
         }
       }
-      edgeData = newEdgeData;
       switch (neighbor[2]) {
         case "n":
           positionY--;
@@ -165,14 +164,14 @@
         case "w":
           positionX--;
       }
-      if (resultGrid["" + positionX + "." + positionY]) {
-        console.log("oops, position already taken");
+      if (!resultGrid["" + positionX + "." + positionY]) {
+        edgeData = newEdgeData;
+        resultGrid["" + positionX + "." + positionY] = neighbor[1];
       }
-      resultGrid["" + positionX + "." + positionY] = neighbor[1];
     }
     mapping = normalizeResultGrid(resultGrid);
-    canvas.width = canvas.width * 1.25;
-    canvas.height = canvas.height * 1;
+    canvas.width = canvas.width * 1.5;
+    canvas.height = canvas.height * 1.5;
     _results = [];
     for (dTile in mapping) {
       if (!__hasProp.call(mapping, dTile)) continue;

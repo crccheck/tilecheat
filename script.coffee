@@ -126,21 +126,20 @@ main = ->
         start = x
       else
         newEdgeData.push x
-    edgeData = newEdgeData
     switch neighbor[2]
       when "n" then positionY--
       when "s" then positionY++
       when "e" then positionX++
       when "w" then positionX--
-    if resultGrid["#{positionX}.#{positionY}"]
-      console.log "oops, position already taken"
-    resultGrid["#{positionX}.#{positionY}"] = neighbor[1]
+    if !resultGrid["#{positionX}.#{positionY}"]
+      edgeData = newEdgeData
+      resultGrid["#{positionX}.#{positionY}"] = neighbor[1]
 
   mapping = normalizeResultGrid resultGrid
 
   # c.clearRect(0, 0, canvas.width, canvas.height)
-  canvas.width = canvas.width * 1.25
-  canvas.height = canvas.height * 1
+  canvas.width = canvas.width * 1.5
+  canvas.height = canvas.height * 1.5
   for own dTile, sTile  of mapping
     sBits = sTile.split('.')
     dBits = dTile.split('.')
