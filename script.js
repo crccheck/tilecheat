@@ -119,7 +119,7 @@
   };
 
   main = function() {
-    var c, canvas, col, edgeData, i, imageData, img, neighbor, newEdgeData, num, positionX, positionY, resultGrid, row, slices, start, x, _i, _j, _len, _len1;
+    var c, canvas, col, dBits, dTile, edgeData, i, imageData, img, mapping, neighbor, newEdgeData, num, positionX, positionY, resultGrid, row, sBits, sTile, slices, start, x, _i, _j, _len, _len1, _results;
     img = $('img')[0];
     width = img.width;
     slice_w = width / n_slices;
@@ -170,7 +170,18 @@
       }
       resultGrid["" + positionX + "." + positionY] = neighbor[1];
     }
-    return console.log(normalizeResultGrid(resultGrid));
+    mapping = normalizeResultGrid(resultGrid);
+    canvas.width = canvas.width * 2;
+    canvas.height = canvas.height * 2;
+    _results = [];
+    for (dTile in mapping) {
+      if (!__hasProp.call(mapping, dTile)) continue;
+      sTile = mapping[dTile];
+      sBits = sTile.split('.');
+      dBits = dTile.split('.');
+      _results.push(c.drawImage(img, sBits[0] * slice_w, sBits[1] * slice_w, slice_w, slice_w, dBits[0] * slice_w, dBits[1] * slice_w, slice_w, slice_w));
+    }
+    return _results;
   };
 
   $(window).load(function() {
