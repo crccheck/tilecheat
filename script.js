@@ -13,7 +13,7 @@
     var index, rgba;
     index = (x + y * width) * 4;
     rgba = [d[index], d[index + 1], d[index + 2], d[index + 3]];
-    return rgba[1];
+    return rgba;
   };
 
   setPixel = function(d, x, y) {
@@ -59,7 +59,7 @@
     sum = 0;
     for (i = _i = 0, _len = d1.length; _i < _len; i = ++_i) {
       value = d1[i];
-      sum += Math.abs(d2[i] - value);
+      sum += Math.abs(d2[i][1] - value[1]);
     }
     return sum;
   };

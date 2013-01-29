@@ -6,7 +6,7 @@ getPixel = (d, x, y) ->
   index = (x + y * width) * 4
   rgba = [d[index], d[index + 1], d[index + 2], d[index + 3]]
   # only use green channel for now
-  return rgba[1]
+  return rgba
 
 setPixel = (d, x, y) ->
   index = (x + y * width) * 4
@@ -44,7 +44,7 @@ getEdgeData = (d, m, n) ->
 difference = (d1, d2) ->
   sum = 0
   for value, i in d1
-    sum += Math.abs(d2[i] - value)
+    sum += Math.abs(d2[i][1] - value[1])
   return sum
 
 
