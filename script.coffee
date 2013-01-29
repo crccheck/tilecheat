@@ -2,6 +2,10 @@ n_slices = 4
 slice_w = 0
 width = 0
 
+
+$ = (s) -> document.getElementById(s)
+
+
 getPixel = (d, x, y) ->
   index = (x + y * width) * 4
   rgba = [d[index], d[index + 1], d[index + 2], d[index + 3]]
@@ -94,11 +98,11 @@ normalizeResultGrid = (input) ->
 
 
 main = ->
-  img = $('img')[0]
+  img = $('img')
   width = img.width
   slice_w = width / n_slices
 
-  canvas = $('canvas')[0]
+  canvas = $('canvas')
   c = canvas.getContext("2d")
   c.drawImage(img, 0, 0, 240, 240)
 
@@ -178,6 +182,6 @@ main = ->
 
 
 
-$(window).load(->
-  main()
-)
+# $(window).load(->
+main()
+# )
