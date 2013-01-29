@@ -183,10 +183,10 @@
           positionY++;
           break;
         case "e":
-          positionX++;
+          positionX--;
           break;
         case "w":
-          positionX--;
+          positionX++;
       }
       if (!resultGrid["" + positionX + "." + positionY]) {
         edgeData = newEdgeData;

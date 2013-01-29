@@ -152,8 +152,8 @@ main = ->
     switch neighbor[2]
       when "n" then positionY--
       when "s" then positionY++
-      when "e" then positionX++
-      when "w" then positionX--
+      when "e" then positionX--
+      when "w" then positionX++
     if !resultGrid["#{positionX}.#{positionY}"]
       edgeData = newEdgeData
       resultGrid["#{positionX}.#{positionY}"] = neighbor[1]
