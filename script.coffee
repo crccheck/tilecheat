@@ -11,8 +11,12 @@ $ = (s) -> document.getElementById(s)
 
 getPixel = (d, x, y) ->
   index = (x + y * width) * 4
-  rgba = [d[index], d[index + 1], d[index + 2], d[index + 3]]
-  return rgba
+  rgb =
+    r: d[index]
+    g: d[index + 1]
+    b: d[index + 2]
+  lab = Color.convert(rgb, "lab")
+  return lab
 
 
 # for debugging, replace getPixel with this to see which pixels are getting touched.
@@ -56,10 +60,12 @@ getEdgeData = (d, m, n) ->
 # get the accumulated difference between two arrays
 difference = (d1, d2) ->
   sum = 0
-  for value, i in d1
-    # only consider the green channel for now
-    sum += Math.abs(d2[i][1] - value[1])
-  return sum
+  for color1, idx in d1
+    color2 = d2[idx]
+    sum += Math.pow(color2.l - color1.l, 2)
+    sum += Math.pow(color2.a - color1.a, 2)
+    sum += Math.pow(color2.b - color1.b, 2)
+  return Math.sqrt sum
 
 
 # for Array.sort
@@ -141,16 +147,41 @@ main = ->
   reverseResultGrid[start.id] = "#{positionX}.#{positionY}"
   placedTiles = [start]
 
+  window.resultGrid = resultGrid
+  window.placedTiles = placedTiles  # debug
+
   threshold = 1000
 
-  while edgeData.length
-    console.log "Iteration Start", placedTiles.length
+  giveUpThreshold = 1000
+
+  while edgeData.length and --giveUpThreshold
+    console.log "Iteration Start", placedTiles.length, giveUpThreshold
     attempts = 15
     neighbor = null
-    while (neighbor = findNeighbor(start, edgeData))[0] > threshold
+    edgesToSearch = ""
+    if "#{positionX + 1}.#{positionY}" not in resultGrid
+      edgesToSearch += "n"
+    if "#{positionX - 1}.#{positionY}" not in resultGrid
+      edgesToSearch += "s"
+    if "#{positionX}.#{positionY - 1}" not in resultGrid
+      edgesToSearch += "e"
+    if "#{positionX}.#{positionY + 1}" not in resultGrid
+      edgesToSearch += "w"
+    while (neighbor = findNeighbor(start, edgeData, edgesToSearch))[0] > threshold
       # no neighbor meeting threshold found, pick a new start
       console.log "no neighbor meeting threshold found, pick a new start", neighbor
       start = placedTiles[Math.floor(Math.random() * placedTiles.length)]
+
+      edgesToSearch = ""
+      if "#{positionX + 1}.#{positionY}" not in resultGrid
+        edgesToSearch += "n"
+      if "#{positionX - 1}.#{positionY}" not in resultGrid
+        edgesToSearch += "s"
+      if "#{positionX}.#{positionY - 1}" not in resultGrid
+        edgesToSearch += "e"
+      if "#{positionX}.#{positionY + 1}" not in resultGrid
+        edgesToSearch += "w"
+
       bits = reverseResultGrid[start.id].split('.')
       positionX = bits[0]
       positionY = bits[1]
@@ -159,7 +190,7 @@ main = ->
         threshold = threshold * 1.1
         console.log "Raising threshold: #{threshold}"
       if threshold > 100000
-        console.error "oops", findNeighbor(start, edgeData, threshold)
+        console.error "oops, threshold reached"
         return
     console.log "Neighbor found", neighbor
     newEdgeData = []
@@ -179,6 +210,7 @@ main = ->
       resultGrid["#{positionX}.#{positionY}"] = neighbor[1]
       reverseResultGrid[neighbor[1]] = "#{positionX}.#{positionY}"
 
+  console.log "finished with #{edgeData.length} left and #{giveUpThreshold}"
   mapping = normalizeResultGrid resultGrid
 
   c.clearRect(0, 0, canvas.width, canvas.height)

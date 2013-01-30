@@ -15,10 +15,15 @@
   };
 
   getPixel = function(d, x, y) {
-    var index, rgba;
+    var index, lab, rgb;
     index = (x + y * width) * 4;
-    rgba = [d[index], d[index + 1], d[index + 2], d[index + 3]];
-    return rgba;
+    rgb = {
+      r: d[index],
+      g: d[index + 1],
+      b: d[index + 2]
+    };
+    lab = Color.convert(rgb, "lab");
+    return lab;
   };
 
   setPixel = function(d, x, y) {
@@ -60,13 +65,16 @@
   };
 
   difference = function(d1, d2) {
-    var i, sum, value, _i, _len;
+    var color1, color2, idx, sum, _i, _len;
     sum = 0;
-    for (i = _i = 0, _len = d1.length; _i < _len; i = ++_i) {
-      value = d1[i];
-      sum += Math.abs(d2[i][1] - value[1]);
+    for (idx = _i = 0, _len = d1.length; _i < _len; idx = ++_i) {
+      color1 = d1[idx];
+      color2 = d2[idx];
+      sum += Math.pow(color2.l - color1.l, 2);
+      sum += Math.pow(color2.a - color1.a, 2);
+      sum += Math.pow(color2.b - color1.b, 2);
     }
-    return sum;
+    return Math.sqrt(sum);
   };
 
   bestMatchSort = function(a, b) {
@@ -135,7 +143,7 @@
   };
 
   main = function() {
-    var attempts, bits, c, canvas, col, dBits, dTile, edgeData, i, imageData, img, mapping, neighbor, newEdgeData, num, placedTiles, positionX, positionY, resultGrid, reverseResultGrid, row, sBits, sTile, slices, start, threshold, x, _i, _j, _len, _len1, _results;
+    var attempts, bits, c, canvas, col, dBits, dTile, edgeData, edgesToSearch, giveUpThreshold, i, imageData, img, mapping, neighbor, newEdgeData, num, placedTiles, positionX, positionY, resultGrid, reverseResultGrid, row, sBits, sTile, slices, start, threshold, x, _i, _j, _len, _len1, _ref, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _results;
     img = $('img');
     width = img.width;
     slice_w = width / n_slices;
@@ -170,14 +178,43 @@
     resultGrid["" + positionX + "." + positionY] = start.id;
     reverseResultGrid[start.id] = "" + positionX + "." + positionY;
     placedTiles = [start];
+    window.resultGrid = resultGrid;
+    window.placedTiles = placedTiles;
     threshold = 1000;
-    while (edgeData.length) {
-      console.log("Iteration Start", placedTiles.length);
+    giveUpThreshold = 1000;
+    while (edgeData.length && --giveUpThreshold) {
+      console.log("Iteration Start", placedTiles.length, giveUpThreshold);
       attempts = 15;
       neighbor = null;
-      while ((neighbor = findNeighbor(start, edgeData))[0] > threshold) {
+      edgesToSearch = "";
+      if (_ref = "" + (positionX + 1) + "." + positionY, __indexOf.call(resultGrid, _ref) < 0) {
+        edgesToSearch += "n";
+      }
+      if (_ref1 = "" + (positionX - 1) + "." + positionY, __indexOf.call(resultGrid, _ref1) < 0) {
+        edgesToSearch += "s";
+      }
+      if (_ref2 = "" + positionX + "." + (positionY - 1), __indexOf.call(resultGrid, _ref2) < 0) {
+        edgesToSearch += "e";
+      }
+      if (_ref3 = "" + positionX + "." + (positionY + 1), __indexOf.call(resultGrid, _ref3) < 0) {
+        edgesToSearch += "w";
+      }
+      while ((neighbor = findNeighbor(start, edgeData, edgesToSearch))[0] > threshold) {
         console.log("no neighbor meeting threshold found, pick a new start", neighbor);
         start = placedTiles[Math.floor(Math.random() * placedTiles.length)];
+        edgesToSearch = "";
+        if (_ref4 = "" + (positionX + 1) + "." + positionY, __indexOf.call(resultGrid, _ref4) < 0) {
+          edgesToSearch += "n";
+        }
+        if (_ref5 = "" + (positionX - 1) + "." + positionY, __indexOf.call(resultGrid, _ref5) < 0) {
+          edgesToSearch += "s";
+        }
+        if (_ref6 = "" + positionX + "." + (positionY - 1), __indexOf.call(resultGrid, _ref6) < 0) {
+          edgesToSearch += "e";
+        }
+        if (_ref7 = "" + positionX + "." + (positionY + 1), __indexOf.call(resultGrid, _ref7) < 0) {
+          edgesToSearch += "w";
+        }
         bits = reverseResultGrid[start.id].split('.');
         positionX = bits[0];
         positionY = bits[1];
@@ -187,7 +224,7 @@
           console.log("Raising threshold: " + threshold);
         }
         if (threshold > 100000) {
-          console.error("oops", findNeighbor(start, edgeData, threshold));
+          console.error("oops, threshold reached");
           return;
         }
       }
@@ -221,6 +258,7 @@
         reverseResultGrid[neighbor[1]] = "" + positionX + "." + positionY;
       }
     }
+    console.log("finished with " + edgeData.length + " left and " + giveUpThreshold);
     mapping = normalizeResultGrid(resultGrid);
     c.clearRect(0, 0, canvas.width, canvas.height);
     _results = [];
