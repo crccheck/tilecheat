@@ -23,6 +23,9 @@
       b: d[index + 2]
     };
     lab = Color.convert(rgb, "lab");
+    if (lab.l < 10) {
+      lab.l = Math.floor(Math.random() * 100);
+    }
     return lab;
   };
 
