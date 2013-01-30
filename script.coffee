@@ -118,6 +118,21 @@ normalizeResultGrid = (input) ->
   return newObj
 
 
+window.validEdge = validEdges = (startCoord, resultGrid) ->
+  bits = startCoord.split('.')
+  x = +bits[0]
+  y = +bits[1]
+  edges = ""
+  if !resultGrid["#{x}.#{y-1}"]
+    edges += "n"
+  if !resultGrid["#{x}.#{y+1}"]
+    edges += "s"
+  if !resultGrid["#{x-1}.#{y}"]
+    edges += "e"
+  if !resultGrid["#{x+1}.#{y}"]
+    edges += "w"
+  return edges
+
 main = ->
   img = $('img')
   width = img.width
@@ -137,61 +152,47 @@ main = ->
     edgeData.push getEdgeData(imageData.data, row, col)
 
   # attempt 1, the long, stupid, dirty way
-  resultGrid = {}
-  reverseResultGrid = {}
+
+  # pick a starting tile
   start = edgeData[Math.floor(Math.random() * edgeData.length)]
   edgeData = (x for x in edgeData when x != start)
+
+  # hold the result
+  resultGrid = {}
+  reverseResultGrid = {}
   positionX = 0
   positionY = 0
   resultGrid["#{positionX}.#{positionY}"] = start.id
   reverseResultGrid[start.id] = "#{positionX}.#{positionY}"
   placedTiles = [start]
 
-  window.resultGrid = resultGrid
+  window.resultGrid = resultGrid  # debug
+  window.reverseResultGrid = reverseResultGrid  # debug
   window.placedTiles = placedTiles  # debug
 
-  threshold = 1000
+  threshold = 500  # match threshold, difference should be under this
+  giveUpThreshold = 50 # give up after this many iterations
 
-  giveUpThreshold = 1000
-
-  while edgeData.length and --giveUpThreshold
+  while edgeData.length and (giveUpThreshold-- > 0)
     console.log "Iteration Start", placedTiles.length, giveUpThreshold
     attempts = 15
     neighbor = null
-    edgesToSearch = ""
-    if "#{positionX + 1}.#{positionY}" not in resultGrid
-      edgesToSearch += "n"
-    if "#{positionX - 1}.#{positionY}" not in resultGrid
-      edgesToSearch += "s"
-    if "#{positionX}.#{positionY - 1}" not in resultGrid
-      edgesToSearch += "e"
-    if "#{positionX}.#{positionY + 1}" not in resultGrid
-      edgesToSearch += "w"
-    while (neighbor = findNeighbor(start, edgeData, edgesToSearch))[0] > threshold
-      # no neighbor meeting threshold found, pick a new start
-      console.log "no neighbor meeting threshold found, pick a new start", neighbor
-      start = placedTiles[Math.floor(Math.random() * placedTiles.length)]
-
-      edgesToSearch = ""
-      if "#{positionX + 1}.#{positionY}" not in resultGrid
-        edgesToSearch += "n"
-      if "#{positionX - 1}.#{positionY}" not in resultGrid
-        edgesToSearch += "s"
-      if "#{positionX}.#{positionY - 1}" not in resultGrid
-        edgesToSearch += "e"
-      if "#{positionX}.#{positionY + 1}" not in resultGrid
-        edgesToSearch += "w"
-
-      bits = reverseResultGrid[start.id].split('.')
-      positionX = bits[0]
-      positionY = bits[1]
-      if !--attempts
-        attempts = 15
-        threshold = threshold * 1.1
-        console.log "Raising threshold: #{threshold}"
-      if threshold > 100000
-        console.error "oops, threshold reached"
-        return
+    console.log "Looking for neighbor for scrambled #{start.id} in directions #{validEdges(reverseResultGrid[start.id], resultGrid)}"
+    neighbor = findNeighbor(start, edgeData, validEdges(reverseResultGrid[start.id], resultGrid))
+    # while (neighbor = findNeighbor(start, edgeData, validEdges(reverseResultGrid[start.id], resultGrid)))[0] > threshold
+    #   # no neighbor meeting threshold found, pick a new start
+    #   console.log "no neighbor meeting threshold found, pick a new start", neighbor
+    #   start = placedTiles[Math.floor(Math.random() * placedTiles.length)]
+    #   bits = reverseResultGrid[start.id].split('.')
+    #   positionX = bits[0]
+    #   positionY = bits[1]
+    #   if !--attempts
+    #     attempts = 15
+    #     threshold = threshold * 1.1
+    #     console.log "Raising threshold: #{threshold}"
+    #   if threshold > 100000
+    #     console.error "oops, threshold reached"
+    #     return
     console.log "Neighbor found", neighbor
     newEdgeData = []
     for x in edgeData
@@ -205,17 +206,21 @@ main = ->
       when "s" then positionY++
       when "e" then positionX--
       when "w" then positionX++
-    if !resultGrid["#{positionX}.#{positionY}"]
+    solvedCoord = "#{positionX}.#{positionY}"
+    if !resultGrid[solvedCoord]
       edgeData = newEdgeData
-      resultGrid["#{positionX}.#{positionY}"] = neighbor[1]
-      reverseResultGrid[neighbor[1]] = "#{positionX}.#{positionY}"
+      resultGrid[solvedCoord] = neighbor[1]
+      reverseResultGrid[neighbor[1]] = solvedCoord
+    else
+      console.log "oops, solved #{solvedCoord} is already taken by #{resultGrid[solvedCoord]}"
+      giveUpThreshold = -1  # give up
 
   console.log "finished with #{edgeData.length} left and #{giveUpThreshold}"
   mapping = normalizeResultGrid resultGrid
 
   c.clearRect(0, 0, canvas.width, canvas.height)
-  # canvas.width = canvas.width * 1.5
-  # canvas.height = canvas.height * 1.5
+  canvas.width = canvas.width * 1.5
+  canvas.height = canvas.height * 1.5
   for own dTile, sTile  of mapping
     sBits = sTile.split('.')
     dBits = dTile.split('.')
