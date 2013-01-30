@@ -67,28 +67,32 @@ bestMatchSort = (a, b) -> a[0] - b[0]
 
 
 # find the best neighbor for `targetSlice` from `edgeData`
-findNeighbor = (targetSlice, edgeData)->
+findNeighbor = (targetSlice, edgeData, edges="news")->
   allMatches = []
-  # find north match
-  currentMatches = []
-  for data in edgeData
-    currentMatches.push([difference(targetSlice.n, data.s), data.id, "n"])
-  allMatches.push(currentMatches.sort(bestMatchSort)[0])
-  # find south match
-  currentMatches = []
-  for data in edgeData
-    currentMatches.push([difference(targetSlice.s, data.n), data.id, "s"])
-  allMatches.push(currentMatches.sort(bestMatchSort)[0])
-  # find east match
-  currentMatches = []
-  for data in edgeData
-    currentMatches.push([difference(targetSlice.e, data.w), data.id, "e"])
-  allMatches.push(currentMatches.sort(bestMatchSort)[0])
-  # find west match
-  currentMatches = []
-  for data in edgeData
-    currentMatches.push([difference(targetSlice.w, data.e), data.id, "w"])
-  allMatches.push(currentMatches.sort(bestMatchSort)[0])
+  if "n" in edges
+    # find north match
+    currentMatches = []
+    for data in edgeData
+      currentMatches.push([difference(targetSlice.n, data.s), data.id, "n"])
+    allMatches.push(currentMatches.sort(bestMatchSort)[0])
+  if "s" in edges
+    # find south match
+    currentMatches = []
+    for data in edgeData
+      currentMatches.push([difference(targetSlice.s, data.n), data.id, "s"])
+    allMatches.push(currentMatches.sort(bestMatchSort)[0])
+  if "e" in edges
+    # find east match
+    currentMatches = []
+    for data in edgeData
+      currentMatches.push([difference(targetSlice.e, data.w), data.id, "e"])
+    allMatches.push(currentMatches.sort(bestMatchSort)[0])
+  if "w" in edges
+    # find west match
+    currentMatches = []
+    for data in edgeData
+      currentMatches.push([difference(targetSlice.w, data.e), data.id, "w"])
+    allMatches.push(currentMatches.sort(bestMatchSort)[0])
 
   bestMatch = allMatches.sort(bestMatchSort)[0]
 
@@ -142,7 +146,7 @@ main = ->
     console.log "Iteration Start", placedTiles.length
     attempts = 15
     neighbor = null
-    while (neighbor = findNeighbor(start, edgeData, threshold))[0] > threshold
+    while (neighbor = findNeighbor(start, edgeData))[0] > threshold
       # no neighbor meeting threshold found, pick a new start
       console.log "no neighbor meeting threshold found, pick a new start", neighbor
       start = placedTiles[Math.floor(Math.random() * placedTiles.length)]
