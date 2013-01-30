@@ -133,26 +133,23 @@ window.validEdge = validEdges = (startCoord, resultGrid) ->
     edges += "w"
   return edges
 
-main = ->
-  img = $('img')
-  width = img.width
-  slice_w = width / n_slices
 
-  canvas = $('canvas')
-  c = canvas.getContext("2d")
-  c.drawImage(img, 0, 0, 240, 240)
+# get the shape of a grid
+shape = (input) ->
+  minX = 99
+  minY = 99
+  maxX = -99
+  maxY = -99
+  for own key of input
+    bits = key.split('.')
+    minX = Math.min(minX, bits[0])
+    maxX = Math.max(maxX, bits[0])
+    minY = Math.min(minY, bits[1])
+    maxY = Math.max(maxY, bits[1])
+  return [maxX - minX + 1, maxY - minY + 1]
 
-  imageData = c.getImageData(0, 0, canvas.width, canvas.height)
-  edgeData = []
 
-  slices = new Array(n_slices * n_slices)
-  for num, i in slices
-    row = Math.floor(i / n_slices)
-    col = i % n_slices
-    edgeData.push getEdgeData(imageData.data, row, col)
-
-  # attempt 1, the long, stupid, dirty way
-
+getResult = (edgeData)->
   # pick a starting tile
   start = edgeData[Math.floor(Math.random() * edgeData.length)]
   edgeData = (x for x in edgeData when x != start)
@@ -216,12 +213,37 @@ main = ->
       giveUpThreshold = -1  # give up
 
   console.log "finished with #{edgeData.length} left and #{giveUpThreshold}"
+
+  return resultGrid
+
+
+main = ->
+  img = $('img')
+  width = img.width
+  slice_w = width / n_slices
+
+  canvas = $('canvas')
+  c = canvas.getContext("2d")
+  c.drawImage(img, 0, 0, 240, 240)
+
+  imageData = c.getImageData(0, 0, canvas.width, canvas.height)
+  edgeData = []
+
+  slices = new Array(n_slices * n_slices)
+  for num, i in slices
+    row = Math.floor(i / n_slices)
+    col = i % n_slices
+    edgeData.push getEdgeData(imageData.data, row, col)
+
+  # attempt 1, the long, stupid, dirty way
+  resultGrid = getResult(edgeData)
   mapping = normalizeResultGrid resultGrid
 
   c.clearRect(0, 0, canvas.width, canvas.height)
+  console.log shape resultGrid
   canvas.width = canvas.width * 1.5
   canvas.height = canvas.height * 1.5
-  for own dTile, sTile  of mapping
+  for own dTile, sTile of mapping
     sBits = sTile.split('.')
     dBits = dTile.split('.')
     c.drawImage(img, sBits[0] * slice_w, sBits[1] * slice_w, slice_w, slice_w,
