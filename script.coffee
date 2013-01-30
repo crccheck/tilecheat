@@ -103,21 +103,10 @@ findNeighbor = (targetSlice, edgeData, edges="news")->
   bestMatch = allMatches.sort(bestMatchSort)[0]
 
 
-# make sure the top left is at 0.0
-normalizeResultGrid = (input) ->
-  minX = 99
-  minY = 99
-  for own key of input
-    bits = key.split('.')
-    minX = Math.min(minX, bits[0])
-    minY = Math.min(minY, bits[1])
-  newObj = {}
-  for own key, value of input
-    bits = key.split('.')
-    newObj["#{bits[0] - minX}.#{bits[1] - minY}"] = value
-  return newObj
-
-
+# return empty sides
+#
+# if a tile already has blocks above and below, return "ew" so findneighber
+# knows not to look north or south.
 window.validEdge = validEdges = (startCoord, resultGrid) ->
   bits = startCoord.split('.')
   x = +bits[0]
@@ -134,6 +123,21 @@ window.validEdge = validEdges = (startCoord, resultGrid) ->
   return edges
 
 
+# make sure the top left is at 0.0
+normalizeResultGrid = (input) ->
+  minX = 99
+  minY = 99
+  for own key of input
+    bits = key.split('.')
+    minX = Math.min(minX, bits[0])
+    minY = Math.min(minY, bits[1])
+  newObj = {}
+  for own key, value of input
+    bits = key.split('.')
+    newObj["#{bits[0] - minX}.#{bits[1] - minY}"] = value
+  return newObj
+
+
 # get the shape of a grid
 shape = (input) ->
   minX = 99
@@ -147,6 +151,18 @@ shape = (input) ->
     minY = Math.min(minY, bits[1])
     maxY = Math.max(maxY, bits[1])
   return [maxX - minX + 1, maxY - minY + 1]
+
+
+# get edge data from the raw image data
+getAllEdgeData = (imageDataArray) ->
+  edgeData = []
+  slices = new Array(n_slices * n_slices)
+  for num, i in slices
+    row = Math.floor(i / n_slices)
+    col = i % n_slices
+    edgeData.push getEdgeData(imageDataArray, row, col)
+  return edgeData
+
 
 
 # get a resultGrid based on the edgeData
@@ -227,46 +243,37 @@ resultIsValid = (resultGrid) ->
 
 main = ->
   img = $('img')
-  width = img.width
+  width = height = img.width
   slice_w = width / n_slices
 
   canvas = $('canvas')
   c = canvas.getContext("2d")
-  c.drawImage(img, 0, 0, 240, 240)
+  c.drawImage(img, 0, 0, width, height)
 
-  imageData = c.getImageData(0, 0, canvas.width, canvas.height)
-  edgeData = []
-
-  slices = new Array(n_slices * n_slices)
-  for num, i in slices
-    row = Math.floor(i / n_slices)
-    col = i % n_slices
-    edgeData.push getEdgeData(imageData.data, row, col)
+  imageData = c.getImageData(0, 0, width, height)
+  edgeData = getAllEdgeData imageData.data
 
   retries = 10
+  _retries = retries
   resultGrid = getResult(edgeData)
-  while --retries and !resultIsValid(resultGrid)
-    console.log "try again", retries
+  while --_retries and !resultIsValid(resultGrid)
+    console.log "try again, attempt ##{retries - _retries}"
     resultGrid = getResult(edgeData)
 
-  # c.clearRect(0, 0, canvas.width, canvas.height)
+  # clear canvas, resize if necessary
   dim = shape(resultGrid)
-  canvas.width = canvas.width * dim[0] / n_slices
-  canvas.height = canvas.height * dim[1] / n_slices
+  canvas.width = width * dim[0] / n_slices
+  canvas.height = height * dim[1] / n_slices
+  # c.clearRect(0, 0, canvas.width, canvas.height)  # alternate
 
+  # draw unscrambled image
   mapping = normalizeResultGrid resultGrid
   for own dTile, sTile of mapping
     sBits = sTile.split('.')
     dBits = dTile.split('.')
-    c.drawImage(img, sBits[0] * slice_w, sBits[1] * slice_w, slice_w, slice_w,
+    c.drawImage(img,
+      sBits[0] * slice_w, sBits[1] * slice_w, slice_w, slice_w,
       dBits[0] * slice_w, dBits[1] * slice_w, slice_w, slice_w)
-
-
-
-
-    # console.log row * slice_w, col * slice_w
-
-
 
 
 # $(window).load(->
