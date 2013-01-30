@@ -72,31 +72,31 @@
     return a[0] - b[0];
   };
 
-  findNeighbor = function(start, edgeData) {
+  findNeighbor = function(targetSlice, edgeData) {
     var allMatches, bestMatch, currentMatches, data, _i, _j, _k, _l, _len, _len1, _len2, _len3;
     allMatches = [];
     currentMatches = [];
     for (_i = 0, _len = edgeData.length; _i < _len; _i++) {
       data = edgeData[_i];
-      currentMatches.push([difference(start.n, data.s), data.id, "n"]);
+      currentMatches.push([difference(targetSlice.n, data.s), data.id, "n"]);
     }
     allMatches.push(currentMatches.sort(bestMatchSort)[0]);
     currentMatches = [];
     for (_j = 0, _len1 = edgeData.length; _j < _len1; _j++) {
       data = edgeData[_j];
-      currentMatches.push([difference(start.s, data.n), data.id, "s"]);
+      currentMatches.push([difference(targetSlice.s, data.n), data.id, "s"]);
     }
     allMatches.push(currentMatches.sort(bestMatchSort)[0]);
     currentMatches = [];
     for (_k = 0, _len2 = edgeData.length; _k < _len2; _k++) {
       data = edgeData[_k];
-      currentMatches.push([difference(start.e, data.w), data.id, "e"]);
+      currentMatches.push([difference(targetSlice.e, data.w), data.id, "e"]);
     }
     allMatches.push(currentMatches.sort(bestMatchSort)[0]);
     currentMatches = [];
     for (_l = 0, _len3 = edgeData.length; _l < _len3; _l++) {
       data = edgeData[_l];
-      currentMatches.push([difference(start.w, data.e), data.id, "w"]);
+      currentMatches.push([difference(targetSlice.w, data.e), data.id, "w"]);
     }
     allMatches.push(currentMatches.sort(bestMatchSort)[0]);
     return bestMatch = allMatches.sort(bestMatchSort)[0];

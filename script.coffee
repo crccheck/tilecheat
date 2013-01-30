@@ -1,4 +1,7 @@
+# CONFIGURATION
 n_slices = 4
+
+# scope hack
 slice_w = 0
 width = 0
 
@@ -9,9 +12,10 @@ $ = (s) -> document.getElementById(s)
 getPixel = (d, x, y) ->
   index = (x + y * width) * 4
   rgba = [d[index], d[index + 1], d[index + 2], d[index + 3]]
-  # only use green channel for now
   return rgba
 
+
+# for debugging, replace getPixel with this to see which pixels are getting touched.
 setPixel = (d, x, y) ->
   index = (x + y * width) * 4
   rgba = [d[index], d[index + 1], d[index + 2], d[index + 3]]
@@ -21,6 +25,11 @@ setPixel = (d, x, y) ->
   d[index + 2] = 0
   return d
 
+
+# arguments:
+#  d: imageData
+#  m: horizontal slice coordinate (0 based)
+#  n: vertical slice coordinate (0 based)
 getEdgeData = (d, m, n) ->
   x_begin = m * slice_w
   x_end = x_begin + slice_w - 1
@@ -48,6 +57,7 @@ getEdgeData = (d, m, n) ->
 difference = (d1, d2) ->
   sum = 0
   for value, i in d1
+    # only consider the green channel for now
     sum += Math.abs(d2[i][1] - value[1])
   return sum
 
@@ -56,33 +66,34 @@ difference = (d1, d2) ->
 bestMatchSort = (a, b) -> a[0] - b[0]
 
 
-findNeighbor = (start, edgeData)->
+# find the best neighbor for `targetSlice` from `edgeData`
+findNeighbor = (targetSlice, edgeData)->
   allMatches = []
   # find north match
   currentMatches = []
   for data in edgeData
-    currentMatches.push([difference(start.n, data.s), data.id, "n"])
+    currentMatches.push([difference(targetSlice.n, data.s), data.id, "n"])
   allMatches.push(currentMatches.sort(bestMatchSort)[0])
   # find south match
   currentMatches = []
   for data in edgeData
-    currentMatches.push([difference(start.s, data.n), data.id, "s"])
+    currentMatches.push([difference(targetSlice.s, data.n), data.id, "s"])
   allMatches.push(currentMatches.sort(bestMatchSort)[0])
   # find east match
   currentMatches = []
   for data in edgeData
-    currentMatches.push([difference(start.e, data.w), data.id, "e"])
+    currentMatches.push([difference(targetSlice.e, data.w), data.id, "e"])
   allMatches.push(currentMatches.sort(bestMatchSort)[0])
   # find west match
   currentMatches = []
   for data in edgeData
-    currentMatches.push([difference(start.w, data.e), data.id, "w"])
+    currentMatches.push([difference(targetSlice.w, data.e), data.id, "w"])
   allMatches.push(currentMatches.sort(bestMatchSort)[0])
 
   bestMatch = allMatches.sort(bestMatchSort)[0]
 
 
-# make sure the top left is 0.0
+# make sure the top left is at 0.0
 normalizeResultGrid = (input) ->
   minX = 99
   minY = 99
