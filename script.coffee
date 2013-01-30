@@ -133,7 +133,8 @@ main = ->
   # attempt 1, the long, stupid, dirty way
   resultGrid = {}
   reverseResultGrid = {}
-  start = edgeData.pop()
+  start = edgeData[Math.floor(Math.random() * edgeData.length)]
+  edgeData = (x for x in edgeData when x != start)
   positionX = 0
   positionY = 0
   resultGrid["#{positionX}.#{positionY}"] = start.id

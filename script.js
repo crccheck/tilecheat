@@ -153,7 +153,18 @@
     }
     resultGrid = {};
     reverseResultGrid = {};
-    start = edgeData.pop();
+    start = edgeData[Math.floor(Math.random() * edgeData.length)];
+    edgeData = (function() {
+      var _j, _len1, _results;
+      _results = [];
+      for (_j = 0, _len1 = edgeData.length; _j < _len1; _j++) {
+        x = edgeData[_j];
+        if (x !== start) {
+          _results.push(x);
+        }
+      }
+      return _results;
+    })();
     positionX = 0;
     positionY = 0;
     resultGrid["" + positionX + "." + positionY] = start.id;
