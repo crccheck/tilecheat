@@ -149,6 +149,8 @@ shape = (input) ->
   return [maxX - minX + 1, maxY - minY + 1]
 
 
+# get a resultGrid based on the edgeData
+  # attempt 1, the long, stupid, dirty way
 getResult = (edgeData)->
   # pick a starting tile
   start = edgeData[Math.floor(Math.random() * edgeData.length)]
@@ -171,10 +173,10 @@ getResult = (edgeData)->
   giveUpThreshold = 50 # give up after this many iterations
 
   while edgeData.length and (giveUpThreshold-- > 0)
-    console.log "Iteration Start", placedTiles.length, giveUpThreshold
+    # console.log "Iteration Start", placedTiles.length, giveUpThreshold
     attempts = 15
     neighbor = null
-    console.log "Looking for neighbor for scrambled #{start.id} in directions #{validEdges(reverseResultGrid[start.id], resultGrid)}"
+    # console.log "Looking for neighbor for scrambled #{start.id} in directions #{validEdges(reverseResultGrid[start.id], resultGrid)}"
     neighbor = findNeighbor(start, edgeData, validEdges(reverseResultGrid[start.id], resultGrid))
     # while (neighbor = findNeighbor(start, edgeData, validEdges(reverseResultGrid[start.id], resultGrid)))[0] > threshold
     #   # no neighbor meeting threshold found, pick a new start
@@ -190,7 +192,7 @@ getResult = (edgeData)->
     #   if threshold > 100000
     #     console.error "oops, threshold reached"
     #     return
-    console.log "Neighbor found", neighbor
+    # console.log "Neighbor found", neighbor
     newEdgeData = []
     for x in edgeData
       if x.id == neighbor[1]
@@ -212,9 +214,15 @@ getResult = (edgeData)->
       console.log "oops, solved #{solvedCoord} is already taken by #{resultGrid[solvedCoord]}"
       giveUpThreshold = -1  # give up
 
-  console.log "finished with #{edgeData.length} left and #{giveUpThreshold}"
+  # console.log "finished with #{edgeData.length} left and #{giveUpThreshold}"
 
   return resultGrid
+
+
+# test if the result grid is a valid solution
+resultIsValid = (resultGrid) ->
+  dim = shape(resultGrid)
+  return dim[0] == n_slices and dim[1] == n_slices
 
 
 main = ->
@@ -235,14 +243,18 @@ main = ->
     col = i % n_slices
     edgeData.push getEdgeData(imageData.data, row, col)
 
-  # attempt 1, the long, stupid, dirty way
+  retries = 10
   resultGrid = getResult(edgeData)
-  mapping = normalizeResultGrid resultGrid
+  while --retries and !resultIsValid(resultGrid)
+    console.log "try again", retries
+    resultGrid = getResult(edgeData)
 
-  c.clearRect(0, 0, canvas.width, canvas.height)
-  console.log shape resultGrid
-  canvas.width = canvas.width * 1.5
-  canvas.height = canvas.height * 1.5
+  # c.clearRect(0, 0, canvas.width, canvas.height)
+  dim = shape(resultGrid)
+  canvas.width = canvas.width * dim[0] / n_slices
+  canvas.height = canvas.height * dim[1] / n_slices
+
+  mapping = normalizeResultGrid resultGrid
   for own dTile, sTile of mapping
     sBits = sTile.split('.')
     dBits = dTile.split('.')
