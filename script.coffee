@@ -57,8 +57,8 @@ getEdgeData = (d, m, n) ->
   return data
 
 
-# get the accumulated difference between two arrays
-difference = (d1, d2) ->
+# get the distance between two edges
+distance = (d1, d2) ->
   sum = 0
   for color1, idx in d1
     color2 = d2[idx]
@@ -79,25 +79,25 @@ findNeighbor = (targetSlice, edgeData, edges="news")->
     # find north match
     currentMatches = []
     for data in edgeData
-      currentMatches.push([difference(targetSlice.n, data.s), data.id, "n"])
+      currentMatches.push([distance(targetSlice.n, data.s), data.id, "n"])
     allMatches.push(currentMatches.sort(bestMatchSort)[0])
   if "s" in edges
     # find south match
     currentMatches = []
     for data in edgeData
-      currentMatches.push([difference(targetSlice.s, data.n), data.id, "s"])
+      currentMatches.push([distance(targetSlice.s, data.n), data.id, "s"])
     allMatches.push(currentMatches.sort(bestMatchSort)[0])
   if "e" in edges
     # find east match
     currentMatches = []
     for data in edgeData
-      currentMatches.push([difference(targetSlice.e, data.w), data.id, "e"])
+      currentMatches.push([distance(targetSlice.e, data.w), data.id, "e"])
     allMatches.push(currentMatches.sort(bestMatchSort)[0])
   if "w" in edges
     # find west match
     currentMatches = []
     for data in edgeData
-      currentMatches.push([difference(targetSlice.w, data.e), data.id, "w"])
+      currentMatches.push([distance(targetSlice.w, data.e), data.id, "w"])
     allMatches.push(currentMatches.sort(bestMatchSort)[0])
 
   bestMatch = allMatches.sort(bestMatchSort)[0]
@@ -169,8 +169,8 @@ getResult = (edgeData)->
   window.reverseResultGrid = reverseResultGrid  # debug
   window.placedTiles = placedTiles  # debug
 
-  threshold = 500  # match threshold, difference should be under this
-  giveUpThreshold = 50 # give up after this many iterations
+  threshold = 500  # match threshold, distance between edges should be under this
+  giveUpThreshold = 50  # give up after this many iterations
 
   while edgeData.length and (giveUpThreshold-- > 0)
     # console.log "Iteration Start", placedTiles.length, giveUpThreshold
@@ -211,7 +211,7 @@ getResult = (edgeData)->
       resultGrid[solvedCoord] = neighbor[1]
       reverseResultGrid[neighbor[1]] = solvedCoord
     else
-      console.log "oops, solved #{solvedCoord} is already taken by #{resultGrid[solvedCoord]}"
+      console.error "oops, solved #{solvedCoord} is already taken by #{resultGrid[solvedCoord]}"
       giveUpThreshold = -1  # give up
 
   # console.log "finished with #{edgeData.length} left and #{giveUpThreshold}"
