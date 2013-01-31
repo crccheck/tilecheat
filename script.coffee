@@ -261,6 +261,15 @@ getResult2 = (tiles)->
     return map
   map = buildMap()
 
+  move = (coord, direction) ->
+    bits = String(coord).split('.')
+    switch direction
+      when "n" then --bits[1]
+      when "s" then ++bits[1]
+      when "e" then ++bits[0]
+      when "w" then --bits[0]
+    return bits.join('.')
+
   # step 1: find best match
   matchDistance = 9999
   match = ""
@@ -279,8 +288,10 @@ getResult2 = (tiles)->
   console.log "map.length", Object.getOwnPropertyNames(map).length
   if matchPairOrientation == "v"
     resultGrid['0.1'] = matchPair[1]
+    reverseResultGrid["#{matchPair[1]}"] = '0.1'
   else
     resultGrid['1.0'] = matchPair[1]
+    reverseResultGrid["#{matchPair[1]}"] = '1.0'
   # store placed tiles
   placedTiles = matchPair
   # eliminate all invalid matches
@@ -299,7 +310,22 @@ getResult2 = (tiles)->
     if mapFilterRe.test(testMatch) and testMatchDistance < matchDistance
       matchDistance = testMatchDistance
       match = testMatch
-  console.log matchDistance, match
+  matchPair = match.split(/[vh]/)
+  matchPairOrientation = if match.indexOf('v') then "v" else "h"  # I'm avoiding -1
+  console.log matchPair, matchPairOrientation
+  if origin = reverseResultGrid[matchPair[0]]
+    if matchPairOrientation == "v"
+      resultGrid[move(origin, "s")] = matchPair[1]
+    else
+      resultGrid[move(origin, "e")] = matchPair[1]
+  else if origin = reverseResultGrid[matchPair[1]]
+    if matchPairOrientation == "v"
+      resultGrid[move(origin, "n")] = matchPair[1]
+    else
+      resultGrid[move(origin, "e")] = matchPair[1]
+  else
+    console.log "oops, incorrectly matched a disjoint tile"
+
 
   return resultGrid
 

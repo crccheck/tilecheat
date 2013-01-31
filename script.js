@@ -275,7 +275,7 @@
   }
 
   getResult2 = function(tiles) {
-    var buildMap, key, map, mapFilterRe, match, matchDistance, matchPair, matchPairOrientation, placedTiles, resultGrid, reverseResultGrid, testMatch, testMatchDistance, value;
+    var buildMap, key, map, mapFilterRe, match, matchDistance, matchPair, matchPairOrientation, move, origin, placedTiles, resultGrid, reverseResultGrid, testMatch, testMatchDistance, value;
     buildMap = function() {
       var i, map, tile1, tile2, _i, _j, _len, _len1, _ref;
       map = {};
@@ -293,6 +293,24 @@
       return map;
     };
     map = buildMap();
+    move = function(coord, direction) {
+      var bits;
+      bits = String(coord).split('.');
+      switch (direction) {
+        case "n":
+          --bits[1];
+          break;
+        case "s":
+          ++bits[1];
+          break;
+        case "e":
+          ++bits[0];
+          break;
+        case "w":
+          --bits[0];
+      }
+      return bits.join('.');
+    };
     matchDistance = 9999;
     match = "";
     for (testMatch in map) {
@@ -314,8 +332,10 @@
     console.log("map.length", Object.getOwnPropertyNames(map).length);
     if (matchPairOrientation === "v") {
       resultGrid['0.1'] = matchPair[1];
+      reverseResultGrid["" + matchPair[1]] = '0.1';
     } else {
       resultGrid['1.0'] = matchPair[1];
+      reverseResultGrid["" + matchPair[1]] = '1.0';
     }
     placedTiles = matchPair;
     for (key in map) {
@@ -339,7 +359,24 @@
         match = testMatch;
       }
     }
-    console.log(matchDistance, match);
+    matchPair = match.split(/[vh]/);
+    matchPairOrientation = match.indexOf('v') ? "v" : "h";
+    console.log(matchPair, matchPairOrientation);
+    if (origin = reverseResultGrid[matchPair[0]]) {
+      if (matchPairOrientation === "v") {
+        resultGrid[move(origin, "s")] = matchPair[1];
+      } else {
+        resultGrid[move(origin, "e")] = matchPair[1];
+      }
+    } else if (origin = reverseResultGrid[matchPair[1]]) {
+      if (matchPairOrientation === "v") {
+        resultGrid[move(origin, "n")] = matchPair[1];
+      } else {
+        resultGrid[move(origin, "e")] = matchPair[1];
+      }
+    } else {
+      console.log("oops, incorrectly matched a disjoint tile");
+    }
     return resultGrid;
   };
 
