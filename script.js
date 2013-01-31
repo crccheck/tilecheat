@@ -322,24 +322,28 @@
       console.log("input", input, "output", output);
       return output;
     };
+    resultGrid = {};
+    reverseResultGrid = {};
+    placedTiles = [];
     matchDistance = 9999;
     match = "";
+    mapFilterRe = new RegExp(("(" + (placedTiles.join(")|(")) + ")").replace(/\./g, "\\."));
     for (testMatch in map) {
       if (!__hasProp.call(map, testMatch)) continue;
       testMatchDistance = map[testMatch];
-      if (testMatchDistance < matchDistance) {
+      if (mapFilterRe.test(testMatch) && testMatchDistance < matchDistance) {
         matchDistance = testMatchDistance;
         match = testMatch;
       }
     }
-    console.log("step 1 match:", match);
+    console.log("step #1 match:", match);
     matchPair = match.split(/[vh]/);
     matchPairOrientation = match.indexOf('v') !== -1 ? "v" : "h";
-    origin = '0.0';
-    resultGrid = {
-      '0.0': matchPair[0]
-    };
-    reverseResultGrid = buildReverseResultGrid(resultGrid);
+    if (!placedTiles.length) {
+      origin = '0.0';
+      resultGrid[origin] = matchPair[0];
+      reverseResultGrid = buildReverseResultGrid(resultGrid);
+    }
     console.log("map.length", Object.getOwnPropertyNames(map).length);
     if (origin = reverseResultGrid[matchPair[0]]) {
       if (matchPairOrientation === "v") {

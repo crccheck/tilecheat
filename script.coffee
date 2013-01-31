@@ -278,20 +278,25 @@ getResult2 = (tiles)->
     console.log "input", input, "output", output
     return output
 
+  resultGrid = {}
+  reverseResultGrid = {}
+  placedTiles = []
+
   # step 1: find best match, place two tiles
   matchDistance = 9999
   match = ""
+  mapFilterRe = new RegExp("(#{placedTiles.join(")|(")})".replace(/\./g, "\\."))
   for own testMatch, testMatchDistance of map
-    if testMatchDistance < matchDistance
+    if mapFilterRe.test(testMatch) and testMatchDistance < matchDistance
       matchDistance = testMatchDistance
       match = testMatch
-  console.log "step 1 match:", match
+  console.log "step #1 match:", match
   matchPair = match.split(/[vh]/)
   matchPairOrientation = if match.indexOf('v') != -1 then "v" else "h"
-  origin = '0.0'
-  resultGrid =
-    '0.0': matchPair[0]
-  reverseResultGrid = buildReverseResultGrid(resultGrid)
+  if !placedTiles.length
+    origin = '0.0'
+    resultGrid[origin] = matchPair[0]
+    reverseResultGrid = buildReverseResultGrid(resultGrid)
   console.log "map.length", Object.getOwnPropertyNames(map).length
   if origin = reverseResultGrid[matchPair[0]]
     if matchPairOrientation == "v"
