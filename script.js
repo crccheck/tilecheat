@@ -297,6 +297,11 @@
     resultGrid = {
       '0.0': matchPair[0]
     };
+    if (matchPairOrientation === "v") {
+      resultGrid['0.1'] = matchPair[1];
+    } else {
+      resultGrid['1.0'] = matchPair[1];
+    }
     console.log(resultGrid);
     return resultGrid;
   };
