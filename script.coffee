@@ -237,6 +237,41 @@ getResult = (edgeData)->
   return resultGrid
 
 
+# attempt 2
+getResult2 = (tiles)->
+  # build map of every edge distance possible.
+  #
+  # I think this is O(4n!) keys are <tile><orientation><tile>, where orientation
+  # is (v)ertical or (h)orizontal
+  buildMap = ->
+    map = {}
+    for tile1, i in tiles
+      for tile2 in tiles[(i + 1)..]
+        map["#{tile1.id}h#{tile2.id}"] = distance(tile1.e, tile2.w)
+        map["#{tile2.id}h#{tile1.id}"] = distance(tile2.e, tile1.w)
+        map["#{tile1.id}v#{tile2.id}"] = distance(tile1.s, tile2.n)
+        map["#{tile2.id}v#{tile1.id}"] = distance(tile2.s, tile1.n)
+    return map
+  map = buildMap()
+
+  # step 1: find best match
+  matchDistance = 9999
+  match = ""
+  for own testMatch, testMatchDistance of map
+    if testMatchDistance < matchDistance
+      matchDistance = testMatchDistance
+      match = testMatch
+      console.log matchDistance, match
+
+  matchPair = match.split(/[vh]/)
+  matchPairOrientation = if match.indexOf('v') then "v" else "h"  # I'm avoiding -1
+  resultGrid =
+    '0.0': matchPair[0]
+  console.log resultGrid
+
+  return resultGrid
+
+
 # test if the result grid is a valid solution
 resultIsValid = (resultGrid) ->
   dim = shape(resultGrid)
@@ -257,7 +292,7 @@ main = ->
 
   retries = 10
   _retries = retries
-  resultGrid = getResult(edgeData)
+  resultGrid = getResult2(edgeData)
   while --_retries and !resultIsValid(resultGrid)
     console.log "try again, attempt ##{retries - _retries}"
     resultGrid = getResult(edgeData)
