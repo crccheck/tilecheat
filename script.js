@@ -23,7 +23,7 @@
       b: d[index + 2]
     };
     lab = Color.convert(rgb, "lab");
-    if (lab.l < 10) {
+    if (false && lab.l < 10) {
       lab.l = Math.floor(Math.random() * 100);
     }
     return lab;
@@ -311,14 +311,15 @@
       }
       return bits.join('.');
     };
-    buildReverseResultGrid = function(resultGrid) {
+    buildReverseResultGrid = function(input) {
       var key, output, value;
       output = {};
-      for (key in resultGrid) {
-        if (!__hasProp.call(resultGrid, key)) continue;
-        value = resultGrid[key];
+      for (key in input) {
+        if (!__hasProp.call(input, key)) continue;
+        value = input[key];
         output[value] = key;
       }
+      console.log("input", input, "output", output);
       return output;
     };
     matchDistance = 9999;
@@ -331,18 +332,32 @@
         match = testMatch;
       }
     }
+    console.log("step 1 match:", match);
     matchPair = match.split(/[vh]/);
-    matchPairOrientation = match.indexOf('v') ? "v" : "h";
+    matchPairOrientation = match.indexOf('v') !== -1 ? "v" : "h";
+    origin = '0.0';
     resultGrid = {
       '0.0': matchPair[0]
     };
-    console.log("map.length", Object.getOwnPropertyNames(map).length);
-    if (matchPairOrientation === "v") {
-      resultGrid['0.1'] = matchPair[1];
-    } else {
-      resultGrid['1.0'] = matchPair[1];
-    }
     reverseResultGrid = buildReverseResultGrid(resultGrid);
+    console.log("map.length", Object.getOwnPropertyNames(map).length);
+    if (origin = reverseResultGrid[matchPair[0]]) {
+      if (matchPairOrientation === "v") {
+        resultGrid[move(origin, "s")] = matchPair[1];
+      } else {
+        resultGrid[move(origin, "w")] = matchPair[1];
+      }
+    } else if (origin = reverseResultGrid[matchPair[1]]) {
+      if (matchPairOrientation === "v") {
+        resultGrid[move(origin, "n")] = matchPair[1];
+      } else {
+        resultGrid[move(origin, "e")] = matchPair[1];
+      }
+    } else {
+      console.log("oops, incorrectly matched a disjoint tile");
+    }
+    window.resultGrid = resultGrid;
+    window.reverseResultGrid = reverseResultGrid = buildReverseResultGrid(resultGrid);
     placedTiles = Object.keys(reverseResultGrid);
     for (key in map) {
       if (!__hasProp.call(map, key)) continue;
@@ -366,12 +381,12 @@
       }
     }
     matchPair = match.split(/[vh]/);
-    matchPairOrientation = match.indexOf('v') ? "v" : "h";
+    matchPairOrientation = match.indexOf('v') !== -1 ? "v" : "h";
     if (origin = reverseResultGrid[matchPair[0]]) {
       if (matchPairOrientation === "v") {
         resultGrid[move(origin, "s")] = matchPair[1];
       } else {
-        resultGrid[move(origin, "e")] = matchPair[1];
+        resultGrid[move(origin, "w")] = matchPair[1];
       }
     } else if (origin = reverseResultGrid[matchPair[1]]) {
       if (matchPairOrientation === "v") {
@@ -382,7 +397,8 @@
     } else {
       console.log("oops, incorrectly matched a disjoint tile");
     }
-    reverseResultGrid = buildReverseResultGrid(resultGrid);
+    window.resultGrid = resultGrid;
+    window.reverseResultGrid = reverseResultGrid = buildReverseResultGrid(resultGrid);
     placedTiles = Object.keys(reverseResultGrid);
     for (key in map) {
       if (!__hasProp.call(map, key)) continue;
