@@ -1,5 +1,7 @@
 # CONFIGURATION
 n_slices = 4
+vignette_fix = 0  # black levels below this will have noise artificially added
+retries = 0
 
 # scope hack
 slice_w = 0
@@ -16,7 +18,7 @@ getPixel = (d, x, y) ->
     g: d[index + 1]
     b: d[index + 2]
   lab = Color.convert(rgb, "lab")
-  if lab.l < 10
+  if lab.l < vignette_fix
     lab.l = Math.floor(Math.random() * 100)
   return lab
 
@@ -236,6 +238,92 @@ getResult = (edgeData)->
 
   return resultGrid
 
+# helpers
+if !String::startsWith
+  String::startsWith = (s) ->
+    return this.substring(0, s.length) == s
+if !String::endsWith
+  String::endsWith = (s) ->
+    return this.substring(this.length - s.length) == s
+
+# attempt 2
+getResult2 = (tiles)->
+  # build map of every edge distance possible.
+  #
+  # I think this is O(4n!) keys are <tile><orientation><tile>, where orientation
+  # is (v)ertical or (h)orizontal
+  buildMap = ->
+    map = {}
+    for tile1, i in tiles
+      for tile2 in tiles[(i + 1)..]
+        map["#{tile1.id}h#{tile2.id}"] = distance(tile1.e, tile2.w)
+        map["#{tile2.id}h#{tile1.id}"] = distance(tile2.e, tile1.w)
+        map["#{tile1.id}v#{tile2.id}"] = distance(tile1.s, tile2.n)
+        map["#{tile2.id}v#{tile1.id}"] = distance(tile2.s, tile1.n)
+    return map
+  map = buildMap()
+
+  move = (coord, direction) ->
+    bits = String(coord).split('.')
+    switch direction
+      when "n" then --bits[1]
+      when "s" then ++bits[1]
+      when "e" then ++bits[0]
+      when "w" then --bits[0]
+    return bits.join('.')
+
+  # less efficient, but more readable
+  buildReverseResultGrid = (input) ->
+    output = {}
+    for own key, value of input
+      output[value] = key
+    return output
+
+  resultGrid = {}
+  reverseResultGrid = {}
+  placedTiles = []
+
+  for stepNumber in [0..(n_slices * n_slices)]
+    matchDistance = 9999
+    match = ""
+    mapFilterRe = new RegExp("(#{placedTiles.join(")|(")})".replace(/\./g, "\\."))
+    for own testMatch, testMatchDistance of map
+      if mapFilterRe.test(testMatch) and testMatchDistance < matchDistance
+        matchDistance = testMatchDistance
+        match = testMatch
+    console.log "step #{stepNumber} match:", match
+    matchPair = match.split(/[vh]/)
+    matchPairOrientation = if match.indexOf('v') != -1 then "v" else "h"
+    if !placedTiles.length  # this is our first time through the loop
+      origin = '0.0'
+      resultGrid[origin] = matchPair[0]
+      reverseResultGrid = buildReverseResultGrid(resultGrid)
+    console.log "map.length", Object.getOwnPropertyNames(map).length
+    if origin = reverseResultGrid[matchPair[0]]
+      if matchPairOrientation == "v"
+        resultGrid[move(origin, "s")] = matchPair[1]
+      else
+        resultGrid[move(origin, "w")] = matchPair[1]
+    else if origin = reverseResultGrid[matchPair[1]]
+      if matchPairOrientation == "v"
+        resultGrid[move(origin, "n")] = matchPair[0]
+      else
+        resultGrid[move(origin, "e")] = matchPair[0]
+    else
+      console.log "oops, incorrectly matched a disjoint tile"
+    window.resultGrid = resultGrid
+    window.reverseResultGrid = reverseResultGrid = buildReverseResultGrid(resultGrid)
+    placedTiles = Object.keys(reverseResultGrid)
+    # eliminate all invalid matches
+    for own key, value of map
+      if key.startsWith("#{matchPair[0]}#{matchPairOrientation}")
+        delete map[key]
+      else if key.endsWith("#{matchPairOrientation}#{matchPair[1]}")
+        delete map[key]
+    console.log "map.length", Object.getOwnPropertyNames(map).length
+
+  return resultGrid
+
 
 # test if the result grid is a valid solution
 resultIsValid = (resultGrid) ->
@@ -255,12 +343,11 @@ main = ->
   imageData = c.getImageData(0, 0, width, height)
   edgeData = getAllEdgeData imageData.data
 
-  retries = 10
   _retries = retries
-  resultGrid = getResult(edgeData)
-  while --_retries and !resultIsValid(resultGrid)
+  resultGrid = getResult2(edgeData)
+  while _retries-- and !resultIsValid(resultGrid)
     console.log "try again, attempt ##{retries - _retries}"
-    resultGrid = getResult(edgeData)
+    resultGrid = getResult2(edgeData)
 
   # clear canvas, resize if necessary
   dim = shape(resultGrid)
