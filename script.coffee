@@ -240,7 +240,7 @@ getResult = (edgeData)->
 # test if the result grid is a valid solution
 resultIsValid = (resultGrid) ->
   dim = shape(resultGrid)
-  return dim[0] == n_slices and dim[1] == n_slices
+  return dim[0] <= n_slices and dim[1] <= n_slices
 
 
 main = ->

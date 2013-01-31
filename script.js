@@ -265,7 +265,7 @@
   resultIsValid = function(resultGrid) {
     var dim;
     dim = shape(resultGrid);
-    return dim[0] === n_slices && dim[1] === n_slices;
+    return dim[0] <= n_slices && dim[1] <= n_slices;
   };
 
   main = function() {
