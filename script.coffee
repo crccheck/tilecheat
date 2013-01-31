@@ -236,6 +236,13 @@ getResult = (edgeData)->
 
   return resultGrid
 
+# helpers
+if !String::startsWith
+  String::startsWith = (s) ->
+    return this.substring(0, s.length) == s
+if !String::endsWith
+  String::endsWith = (s) ->
+    return this.substring(this.length - s.length) == s
 
 # attempt 2
 getResult2 = (tiles)->
@@ -267,11 +274,18 @@ getResult2 = (tiles)->
   matchPairOrientation = if match.indexOf('v') then "v" else "h"  # I'm avoiding -1
   resultGrid =
     '0.0': matchPair[0]
+  console.log "map.length", Object.getOwnPropertyNames(map).length
   if matchPairOrientation == "v"
     resultGrid['0.1'] = matchPair[1]
   else
     resultGrid['1.0'] = matchPair[1]
-  console.log resultGrid
+  # eliminate all invalid matches
+  for own key, value of map
+    if key.startsWith("#{matchPair[0]}#{matchPairOrientation}")
+      delete map[key]
+    else if key.endsWith("#{matchPairOrientation}#{matchPair[1]}")
+      delete map[key]
+  console.log "map.length", Object.getOwnPropertyNames(map).length
 
   return resultGrid
 

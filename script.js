@@ -262,8 +262,20 @@
     return resultGrid;
   };
 
+  if (!String.prototype.startsWith) {
+    String.prototype.startsWith = function(s) {
+      return this.substring(0, s.length) === s;
+    };
+  }
+
+  if (!String.prototype.endsWith) {
+    String.prototype.endsWith = function(s) {
+      return this.substring(this.length - s.length) === s;
+    };
+  }
+
   getResult2 = function(tiles) {
-    var buildMap, map, match, matchDistance, matchPair, matchPairOrientation, resultGrid, testMatch, testMatchDistance;
+    var buildMap, key, map, match, matchDistance, matchPair, matchPairOrientation, resultGrid, testMatch, testMatchDistance, value;
     buildMap = function() {
       var i, map, tile1, tile2, _i, _j, _len, _len1, _ref;
       map = {};
@@ -297,12 +309,22 @@
     resultGrid = {
       '0.0': matchPair[0]
     };
+    console.log("map.length", Object.getOwnPropertyNames(map).length);
     if (matchPairOrientation === "v") {
       resultGrid['0.1'] = matchPair[1];
     } else {
       resultGrid['1.0'] = matchPair[1];
     }
-    console.log(resultGrid);
+    for (key in map) {
+      if (!__hasProp.call(map, key)) continue;
+      value = map[key];
+      if (key.startsWith("" + matchPair[0] + matchPairOrientation)) {
+        delete map[key];
+      } else if (key.endsWith("" + matchPairOrientation + matchPair[1])) {
+        delete map[key];
+      }
+    }
+    console.log("map.length", Object.getOwnPropertyNames(map).length);
     return resultGrid;
   };
 
