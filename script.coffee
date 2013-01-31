@@ -270,6 +270,13 @@ getResult2 = (tiles)->
       when "w" then --bits[0]
     return bits.join('.')
 
+  # less efficient, but more readable
+  buildReverseResultGrid = (resultGrid) ->
+    output = {}
+    for own key, value of resultGrid
+      output[value] = key
+    return output
+
   # step 1: find best match
   matchDistance = 9999
   match = ""
@@ -277,23 +284,17 @@ getResult2 = (tiles)->
     if testMatchDistance < matchDistance
       matchDistance = testMatchDistance
       match = testMatch
-      console.log matchDistance, match
-
   matchPair = match.split(/[vh]/)
   matchPairOrientation = if match.indexOf('v') then "v" else "h"  # I'm avoiding -1
   resultGrid =
     '0.0': matchPair[0]
-  reverseResultGrid = {}
-  reverseResultGrid["#{matchPair[0]}"] = '0.0'
   console.log "map.length", Object.getOwnPropertyNames(map).length
   if matchPairOrientation == "v"
     resultGrid['0.1'] = matchPair[1]
-    reverseResultGrid["#{matchPair[1]}"] = '0.1'
   else
     resultGrid['1.0'] = matchPair[1]
-    reverseResultGrid["#{matchPair[1]}"] = '1.0'
-  # store placed tiles
-  placedTiles = matchPair
+  reverseResultGrid = buildReverseResultGrid(resultGrid)
+  placedTiles = Object.keys(reverseResultGrid)
   # eliminate all invalid matches
   for own key, value of map
     if key.startsWith("#{matchPair[0]}#{matchPairOrientation}")
@@ -312,7 +313,6 @@ getResult2 = (tiles)->
       match = testMatch
   matchPair = match.split(/[vh]/)
   matchPairOrientation = if match.indexOf('v') then "v" else "h"  # I'm avoiding -1
-  console.log matchPair, matchPairOrientation
   if origin = reverseResultGrid[matchPair[0]]
     if matchPairOrientation == "v"
       resultGrid[move(origin, "s")] = matchPair[1]
@@ -325,6 +325,15 @@ getResult2 = (tiles)->
       resultGrid[move(origin, "e")] = matchPair[1]
   else
     console.log "oops, incorrectly matched a disjoint tile"
+  reverseResultGrid = buildReverseResultGrid(resultGrid)
+  placedTiles = Object.keys(reverseResultGrid)
+  # eliminate all invalid matches
+  for own key, value of map
+    if key.startsWith("#{matchPair[0]}#{matchPairOrientation}")
+      delete map[key]
+    else if key.endsWith("#{matchPairOrientation}#{matchPair[1]}")
+      delete map[key]
+  console.log "map.length", Object.getOwnPropertyNames(map).length
 
 
   return resultGrid

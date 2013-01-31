@@ -275,7 +275,7 @@
   }
 
   getResult2 = function(tiles) {
-    var buildMap, key, map, mapFilterRe, match, matchDistance, matchPair, matchPairOrientation, move, origin, placedTiles, resultGrid, reverseResultGrid, testMatch, testMatchDistance, value;
+    var buildMap, buildReverseResultGrid, key, map, mapFilterRe, match, matchDistance, matchPair, matchPairOrientation, move, origin, placedTiles, resultGrid, reverseResultGrid, testMatch, testMatchDistance, value;
     buildMap = function() {
       var i, map, tile1, tile2, _i, _j, _len, _len1, _ref;
       map = {};
@@ -311,6 +311,16 @@
       }
       return bits.join('.');
     };
+    buildReverseResultGrid = function(resultGrid) {
+      var key, output, value;
+      output = {};
+      for (key in resultGrid) {
+        if (!__hasProp.call(resultGrid, key)) continue;
+        value = resultGrid[key];
+        output[value] = key;
+      }
+      return output;
+    };
     matchDistance = 9999;
     match = "";
     for (testMatch in map) {
@@ -319,7 +329,6 @@
       if (testMatchDistance < matchDistance) {
         matchDistance = testMatchDistance;
         match = testMatch;
-        console.log(matchDistance, match);
       }
     }
     matchPair = match.split(/[vh]/);
@@ -327,17 +336,14 @@
     resultGrid = {
       '0.0': matchPair[0]
     };
-    reverseResultGrid = {};
-    reverseResultGrid["" + matchPair[0]] = '0.0';
     console.log("map.length", Object.getOwnPropertyNames(map).length);
     if (matchPairOrientation === "v") {
       resultGrid['0.1'] = matchPair[1];
-      reverseResultGrid["" + matchPair[1]] = '0.1';
     } else {
       resultGrid['1.0'] = matchPair[1];
-      reverseResultGrid["" + matchPair[1]] = '1.0';
     }
-    placedTiles = matchPair;
+    reverseResultGrid = buildReverseResultGrid(resultGrid);
+    placedTiles = Object.keys(reverseResultGrid);
     for (key in map) {
       if (!__hasProp.call(map, key)) continue;
       value = map[key];
@@ -361,7 +367,6 @@
     }
     matchPair = match.split(/[vh]/);
     matchPairOrientation = match.indexOf('v') ? "v" : "h";
-    console.log(matchPair, matchPairOrientation);
     if (origin = reverseResultGrid[matchPair[0]]) {
       if (matchPairOrientation === "v") {
         resultGrid[move(origin, "s")] = matchPair[1];
@@ -377,6 +382,18 @@
     } else {
       console.log("oops, incorrectly matched a disjoint tile");
     }
+    reverseResultGrid = buildReverseResultGrid(resultGrid);
+    placedTiles = Object.keys(reverseResultGrid);
+    for (key in map) {
+      if (!__hasProp.call(map, key)) continue;
+      value = map[key];
+      if (key.startsWith("" + matchPair[0] + matchPairOrientation)) {
+        delete map[key];
+      } else if (key.endsWith("" + matchPairOrientation + matchPair[1])) {
+        delete map[key];
+      }
+    }
+    console.log("map.length", Object.getOwnPropertyNames(map).length);
     return resultGrid;
   };
 
