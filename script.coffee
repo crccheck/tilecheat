@@ -281,7 +281,7 @@ getResult2 = (tiles)->
   reverseResultGrid = {}
   placedTiles = []
 
-  for stepNumber in [1..2]
+  for stepNumber in [0..(n_slices * n_slices)]
     matchDistance = 9999
     match = ""
     mapFilterRe = new RegExp("(#{placedTiles.join(")|(")})".replace(/\./g, "\\."))
@@ -292,7 +292,7 @@ getResult2 = (tiles)->
     console.log "step #{stepNumber} match:", match
     matchPair = match.split(/[vh]/)
     matchPairOrientation = if match.indexOf('v') != -1 then "v" else "h"
-    if !placedTiles.length
+    if !placedTiles.length  # this is our first time through the loop
       origin = '0.0'
       resultGrid[origin] = matchPair[0]
       reverseResultGrid = buildReverseResultGrid(resultGrid)
@@ -304,9 +304,9 @@ getResult2 = (tiles)->
         resultGrid[move(origin, "w")] = matchPair[1]
     else if origin = reverseResultGrid[matchPair[1]]
       if matchPairOrientation == "v"
-        resultGrid[move(origin, "n")] = matchPair[1]
+        resultGrid[move(origin, "n")] = matchPair[0]
       else
-        resultGrid[move(origin, "e")] = matchPair[1]
+        resultGrid[move(origin, "e")] = matchPair[0]
     else
       console.log "oops, incorrectly matched a disjoint tile"
     window.resultGrid = resultGrid

@@ -275,7 +275,7 @@
   }
 
   getResult2 = function(tiles) {
-    var buildMap, buildReverseResultGrid, key, map, mapFilterRe, match, matchDistance, matchPair, matchPairOrientation, move, origin, placedTiles, resultGrid, reverseResultGrid, stepNumber, testMatch, testMatchDistance, value, _i;
+    var buildMap, buildReverseResultGrid, key, map, mapFilterRe, match, matchDistance, matchPair, matchPairOrientation, move, origin, placedTiles, resultGrid, reverseResultGrid, stepNumber, testMatch, testMatchDistance, value, _i, _ref;
     buildMap = function() {
       var i, map, tile1, tile2, _i, _j, _len, _len1, _ref;
       map = {};
@@ -324,7 +324,7 @@
     resultGrid = {};
     reverseResultGrid = {};
     placedTiles = [];
-    for (stepNumber = _i = 1; _i <= 2; stepNumber = ++_i) {
+    for (stepNumber = _i = 0, _ref = n_slices * n_slices; 0 <= _ref ? _i <= _ref : _i >= _ref; stepNumber = 0 <= _ref ? ++_i : --_i) {
       matchDistance = 9999;
       match = "";
       mapFilterRe = new RegExp(("(" + (placedTiles.join(")|(")) + ")").replace(/\./g, "\\."));
@@ -353,9 +353,9 @@
         }
       } else if (origin = reverseResultGrid[matchPair[1]]) {
         if (matchPairOrientation === "v") {
-          resultGrid[move(origin, "n")] = matchPair[1];
+          resultGrid[move(origin, "n")] = matchPair[0];
         } else {
-          resultGrid[move(origin, "e")] = matchPair[1];
+          resultGrid[move(origin, "e")] = matchPair[0];
         }
       } else {
         console.log("oops, incorrectly matched a disjoint tile");
