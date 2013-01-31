@@ -1,5 +1,7 @@
 # CONFIGURATION
 n_slices = 4
+vignette_fix = 0  # black levels below this will have noise artificially added
+retries = 0
 
 # scope hack
 slice_w = 0
@@ -16,7 +18,7 @@ getPixel = (d, x, y) ->
     g: d[index + 1]
     b: d[index + 2]
   lab = Color.convert(rgb, "lab")
-  if false and lab.l < 10
+  if lab.l < vignette_fix
     lab.l = Math.floor(Math.random() * 100)
   return lab
 
@@ -341,12 +343,11 @@ main = ->
   imageData = c.getImageData(0, 0, width, height)
   edgeData = getAllEdgeData imageData.data
 
-  retries = 10
   _retries = retries
   resultGrid = getResult2(edgeData)
-  while --_retries and !resultIsValid(resultGrid)
+  while _retries-- and !resultIsValid(resultGrid)
     console.log "try again, attempt ##{retries - _retries}"
-    resultGrid = getResult(edgeData)
+    resultGrid = getResult2(edgeData)
 
   # clear canvas, resize if necessary
   dim = shape(resultGrid)
