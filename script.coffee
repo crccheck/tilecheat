@@ -261,7 +261,7 @@ getResult2 = (tiles)->
         map["#{tile1.id}v#{tile2.id}"] = distance(tile1.s, tile2.n)
         map["#{tile2.id}v#{tile1.id}"] = distance(tile2.s, tile1.n)
     return map
-  map = buildMap()
+  window.map = map = buildMap()
 
   move = (coord, direction) ->
     bits = String(coord).split('.')
@@ -283,7 +283,8 @@ getResult2 = (tiles)->
   reverseResultGrid = {}
   placedTiles = []
 
-  for stepNumber in [0..(n_slices * n_slices)]
+  for stepNumber in [1..(n_slices * n_slices - 1)]
+    # find the closest match
     matchDistance = 9999
     match = ""
     mapFilterRe = new RegExp("(#{placedTiles.join(")|(")})".replace(/\./g, "\\."))
@@ -292,6 +293,8 @@ getResult2 = (tiles)->
         matchDistance = testMatchDistance
         match = testMatch
     console.log "step #{stepNumber} match:", match
+
+    # place matching tile(s)
     matchPair = match.split(/[vh]/)
     matchPairOrientation = if match.indexOf('v') != -1 then "v" else "h"
     if !placedTiles.length  # this is our first time through the loop
@@ -310,7 +313,10 @@ getResult2 = (tiles)->
       else
         resultGrid[move(origin, "e")] = matchPair[0]
     else
-      console.log "oops, incorrectly matched a disjoint tile"
+      console.error "oops, incorrectly matched a disjoint tile"
+      return resultGrid
+
+    # cleanup and setup for the next run through the loop
     window.resultGrid = resultGrid
     window.reverseResultGrid = reverseResultGrid = buildReverseResultGrid(resultGrid)
     placedTiles = Object.keys(reverseResultGrid)
@@ -318,8 +324,14 @@ getResult2 = (tiles)->
     for own key, value of map
       if key.startsWith("#{matchPair[0]}#{matchPairOrientation}")
         delete map[key]
-      else if key.endsWith("#{matchPairOrientation}#{matchPair[1]}")
+        continue
+      if key.endsWith("#{matchPairOrientation}#{matchPair[1]}")
         delete map[key]
+        continue
+      matchPair = key.split(/[vh]/)
+      if matchPair[0] in placedTiles and matchPair[1] in placedTiles
+        delete map[key]
+        continue
     console.log "map.length", Object.getOwnPropertyNames(map).length
 
   return resultGrid

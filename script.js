@@ -279,7 +279,7 @@
   }
 
   getResult2 = function(tiles) {
-    var buildMap, buildReverseResultGrid, key, map, mapFilterRe, match, matchDistance, matchPair, matchPairOrientation, move, origin, placedTiles, resultGrid, reverseResultGrid, stepNumber, testMatch, testMatchDistance, value, _i, _ref;
+    var buildMap, buildReverseResultGrid, key, map, mapFilterRe, match, matchDistance, matchPair, matchPairOrientation, move, origin, placedTiles, resultGrid, reverseResultGrid, stepNumber, testMatch, testMatchDistance, value, _i, _ref, _ref1, _ref2;
     buildMap = function() {
       var i, map, tile1, tile2, _i, _j, _len, _len1, _ref;
       map = {};
@@ -296,7 +296,7 @@
       }
       return map;
     };
-    map = buildMap();
+    window.map = map = buildMap();
     move = function(coord, direction) {
       var bits;
       bits = String(coord).split('.');
@@ -328,7 +328,7 @@
     resultGrid = {};
     reverseResultGrid = {};
     placedTiles = [];
-    for (stepNumber = _i = 0, _ref = n_slices * n_slices; 0 <= _ref ? _i <= _ref : _i >= _ref; stepNumber = 0 <= _ref ? ++_i : --_i) {
+    for (stepNumber = _i = 1, _ref = n_slices * n_slices - 1; 1 <= _ref ? _i <= _ref : _i >= _ref; stepNumber = 1 <= _ref ? ++_i : --_i) {
       matchDistance = 9999;
       match = "";
       mapFilterRe = new RegExp(("(" + (placedTiles.join(")|(")) + ")").replace(/\./g, "\\."));
@@ -362,7 +362,8 @@
           resultGrid[move(origin, "e")] = matchPair[0];
         }
       } else {
-        console.log("oops, incorrectly matched a disjoint tile");
+        console.error("oops, incorrectly matched a disjoint tile");
+        return resultGrid;
       }
       window.resultGrid = resultGrid;
       window.reverseResultGrid = reverseResultGrid = buildReverseResultGrid(resultGrid);
@@ -372,8 +373,16 @@
         value = map[key];
         if (key.startsWith("" + matchPair[0] + matchPairOrientation)) {
           delete map[key];
-        } else if (key.endsWith("" + matchPairOrientation + matchPair[1])) {
+          continue;
+        }
+        if (key.endsWith("" + matchPairOrientation + matchPair[1])) {
           delete map[key];
+          continue;
+        }
+        matchPair = key.split(/[vh]/);
+        if ((_ref1 = matchPair[0], __indexOf.call(placedTiles, _ref1) >= 0) && (_ref2 = matchPair[1], __indexOf.call(placedTiles, _ref2) >= 0)) {
+          delete map[key];
+          continue;
         }
       }
       console.log("map.length", Object.getOwnPropertyNames(map).length);
