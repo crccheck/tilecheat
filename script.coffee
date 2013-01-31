@@ -274,11 +274,15 @@ getResult2 = (tiles)->
   matchPairOrientation = if match.indexOf('v') then "v" else "h"  # I'm avoiding -1
   resultGrid =
     '0.0': matchPair[0]
+  reverseResultGrid = {}
+  reverseResultGrid["#{matchPair[0]}"] = '0.0'
   console.log "map.length", Object.getOwnPropertyNames(map).length
   if matchPairOrientation == "v"
     resultGrid['0.1'] = matchPair[1]
   else
     resultGrid['1.0'] = matchPair[1]
+  # store placed tiles
+  placedTiles = matchPair
   # eliminate all invalid matches
   for own key, value of map
     if key.startsWith("#{matchPair[0]}#{matchPairOrientation}")
@@ -286,6 +290,16 @@ getResult2 = (tiles)->
     else if key.endsWith("#{matchPairOrientation}#{matchPair[1]}")
       delete map[key]
   console.log "map.length", Object.getOwnPropertyNames(map).length
+
+  # step 2: find best match
+  matchDistance = 9999
+  match = ""
+  mapFilterRe = new RegExp("(#{placedTiles.join(")|(")})".replace(/\./g, "\\."))
+  for own testMatch, testMatchDistance of map
+    if mapFilterRe.test(testMatch) and testMatchDistance < matchDistance
+      matchDistance = testMatchDistance
+      match = testMatch
+  console.log matchDistance, match
 
   return resultGrid
 

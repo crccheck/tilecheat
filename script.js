@@ -275,7 +275,7 @@
   }
 
   getResult2 = function(tiles) {
-    var buildMap, key, map, match, matchDistance, matchPair, matchPairOrientation, resultGrid, testMatch, testMatchDistance, value;
+    var buildMap, key, map, mapFilterRe, match, matchDistance, matchPair, matchPairOrientation, placedTiles, resultGrid, reverseResultGrid, testMatch, testMatchDistance, value;
     buildMap = function() {
       var i, map, tile1, tile2, _i, _j, _len, _len1, _ref;
       map = {};
@@ -309,12 +309,15 @@
     resultGrid = {
       '0.0': matchPair[0]
     };
+    reverseResultGrid = {};
+    reverseResultGrid["" + matchPair[0]] = '0.0';
     console.log("map.length", Object.getOwnPropertyNames(map).length);
     if (matchPairOrientation === "v") {
       resultGrid['0.1'] = matchPair[1];
     } else {
       resultGrid['1.0'] = matchPair[1];
     }
+    placedTiles = matchPair;
     for (key in map) {
       if (!__hasProp.call(map, key)) continue;
       value = map[key];
@@ -325,6 +328,18 @@
       }
     }
     console.log("map.length", Object.getOwnPropertyNames(map).length);
+    matchDistance = 9999;
+    match = "";
+    mapFilterRe = new RegExp(("(" + (placedTiles.join(")|(")) + ")").replace(/\./g, "\\."));
+    for (testMatch in map) {
+      if (!__hasProp.call(map, testMatch)) continue;
+      testMatchDistance = map[testMatch];
+      if (mapFilterRe.test(testMatch) && testMatchDistance < matchDistance) {
+        matchDistance = testMatchDistance;
+        match = testMatch;
+      }
+    }
+    console.log(matchDistance, match);
     return resultGrid;
   };
 
