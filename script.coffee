@@ -275,84 +275,50 @@ getResult2 = (tiles)->
     output = {}
     for own key, value of input
       output[value] = key
-    console.log "input", input, "output", output
     return output
 
   resultGrid = {}
   reverseResultGrid = {}
   placedTiles = []
 
-  # step 1: find best match, place two tiles
-  matchDistance = 9999
-  match = ""
-  mapFilterRe = new RegExp("(#{placedTiles.join(")|(")})".replace(/\./g, "\\."))
-  for own testMatch, testMatchDistance of map
-    if mapFilterRe.test(testMatch) and testMatchDistance < matchDistance
-      matchDistance = testMatchDistance
-      match = testMatch
-  console.log "step #1 match:", match
-  matchPair = match.split(/[vh]/)
-  matchPairOrientation = if match.indexOf('v') != -1 then "v" else "h"
-  if !placedTiles.length
-    origin = '0.0'
-    resultGrid[origin] = matchPair[0]
-    reverseResultGrid = buildReverseResultGrid(resultGrid)
-  console.log "map.length", Object.getOwnPropertyNames(map).length
-  if origin = reverseResultGrid[matchPair[0]]
-    if matchPairOrientation == "v"
-      resultGrid[move(origin, "s")] = matchPair[1]
+  for stepNumber in [1..2]
+    matchDistance = 9999
+    match = ""
+    mapFilterRe = new RegExp("(#{placedTiles.join(")|(")})".replace(/\./g, "\\."))
+    for own testMatch, testMatchDistance of map
+      if mapFilterRe.test(testMatch) and testMatchDistance < matchDistance
+        matchDistance = testMatchDistance
+        match = testMatch
+    console.log "step #{stepNumber} match:", match
+    matchPair = match.split(/[vh]/)
+    matchPairOrientation = if match.indexOf('v') != -1 then "v" else "h"
+    if !placedTiles.length
+      origin = '0.0'
+      resultGrid[origin] = matchPair[0]
+      reverseResultGrid = buildReverseResultGrid(resultGrid)
+    console.log "map.length", Object.getOwnPropertyNames(map).length
+    if origin = reverseResultGrid[matchPair[0]]
+      if matchPairOrientation == "v"
+        resultGrid[move(origin, "s")] = matchPair[1]
+      else
+        resultGrid[move(origin, "w")] = matchPair[1]
+    else if origin = reverseResultGrid[matchPair[1]]
+      if matchPairOrientation == "v"
+        resultGrid[move(origin, "n")] = matchPair[1]
+      else
+        resultGrid[move(origin, "e")] = matchPair[1]
     else
-      resultGrid[move(origin, "w")] = matchPair[1]
-  else if origin = reverseResultGrid[matchPair[1]]
-    if matchPairOrientation == "v"
-      resultGrid[move(origin, "n")] = matchPair[1]
-    else
-      resultGrid[move(origin, "e")] = matchPair[1]
-  else
-    console.log "oops, incorrectly matched a disjoint tile"
-  window.resultGrid = resultGrid
-  window.reverseResultGrid = reverseResultGrid = buildReverseResultGrid(resultGrid)
-  placedTiles = Object.keys(reverseResultGrid)
-  # eliminate all invalid matches
-  for own key, value of map
-    if key.startsWith("#{matchPair[0]}#{matchPairOrientation}")
-      delete map[key]
-    else if key.endsWith("#{matchPairOrientation}#{matchPair[1]}")
-      delete map[key]
-  console.log "map.length", Object.getOwnPropertyNames(map).length
-
-  # step 2: find best match
-  matchDistance = 9999
-  match = ""
-  mapFilterRe = new RegExp("(#{placedTiles.join(")|(")})".replace(/\./g, "\\."))
-  for own testMatch, testMatchDistance of map
-    if mapFilterRe.test(testMatch) and testMatchDistance < matchDistance
-      matchDistance = testMatchDistance
-      match = testMatch
-  matchPair = match.split(/[vh]/)
-  matchPairOrientation = if match.indexOf('v') != -1 then "v" else "h"
-  if origin = reverseResultGrid[matchPair[0]]
-    if matchPairOrientation == "v"
-      resultGrid[move(origin, "s")] = matchPair[1]
-    else
-      resultGrid[move(origin, "w")] = matchPair[1]
-  else if origin = reverseResultGrid[matchPair[1]]
-    if matchPairOrientation == "v"
-      resultGrid[move(origin, "n")] = matchPair[1]
-    else
-      resultGrid[move(origin, "e")] = matchPair[1]
-  else
-    console.log "oops, incorrectly matched a disjoint tile"
-  window.resultGrid = resultGrid
-  window.reverseResultGrid = reverseResultGrid = buildReverseResultGrid(resultGrid)
-  placedTiles = Object.keys(reverseResultGrid)
-  # eliminate all invalid matches
-  for own key, value of map
-    if key.startsWith("#{matchPair[0]}#{matchPairOrientation}")
-      delete map[key]
-    else if key.endsWith("#{matchPairOrientation}#{matchPair[1]}")
-      delete map[key]
-  console.log "map.length", Object.getOwnPropertyNames(map).length
+      console.log "oops, incorrectly matched a disjoint tile"
+    window.resultGrid = resultGrid
+    window.reverseResultGrid = reverseResultGrid = buildReverseResultGrid(resultGrid)
+    placedTiles = Object.keys(reverseResultGrid)
+    # eliminate all invalid matches
+    for own key, value of map
+      if key.startsWith("#{matchPair[0]}#{matchPairOrientation}")
+        delete map[key]
+      else if key.endsWith("#{matchPairOrientation}#{matchPair[1]}")
+        delete map[key]
+    console.log "map.length", Object.getOwnPropertyNames(map).length
 
   return resultGrid
 

@@ -275,7 +275,7 @@
   }
 
   getResult2 = function(tiles) {
-    var buildMap, buildReverseResultGrid, key, map, mapFilterRe, match, matchDistance, matchPair, matchPairOrientation, move, origin, placedTiles, resultGrid, reverseResultGrid, testMatch, testMatchDistance, value;
+    var buildMap, buildReverseResultGrid, key, map, mapFilterRe, match, matchDistance, matchPair, matchPairOrientation, move, origin, placedTiles, resultGrid, reverseResultGrid, stepNumber, testMatch, testMatchDistance, value, _i;
     buildMap = function() {
       var i, map, tile1, tile2, _i, _j, _len, _len1, _ref;
       map = {};
@@ -319,101 +319,61 @@
         value = input[key];
         output[value] = key;
       }
-      console.log("input", input, "output", output);
       return output;
     };
     resultGrid = {};
     reverseResultGrid = {};
     placedTiles = [];
-    matchDistance = 9999;
-    match = "";
-    mapFilterRe = new RegExp(("(" + (placedTiles.join(")|(")) + ")").replace(/\./g, "\\."));
-    for (testMatch in map) {
-      if (!__hasProp.call(map, testMatch)) continue;
-      testMatchDistance = map[testMatch];
-      if (mapFilterRe.test(testMatch) && testMatchDistance < matchDistance) {
-        matchDistance = testMatchDistance;
-        match = testMatch;
+    for (stepNumber = _i = 1; _i <= 2; stepNumber = ++_i) {
+      matchDistance = 9999;
+      match = "";
+      mapFilterRe = new RegExp(("(" + (placedTiles.join(")|(")) + ")").replace(/\./g, "\\."));
+      for (testMatch in map) {
+        if (!__hasProp.call(map, testMatch)) continue;
+        testMatchDistance = map[testMatch];
+        if (mapFilterRe.test(testMatch) && testMatchDistance < matchDistance) {
+          matchDistance = testMatchDistance;
+          match = testMatch;
+        }
       }
-    }
-    console.log("step #1 match:", match);
-    matchPair = match.split(/[vh]/);
-    matchPairOrientation = match.indexOf('v') !== -1 ? "v" : "h";
-    if (!placedTiles.length) {
-      origin = '0.0';
-      resultGrid[origin] = matchPair[0];
-      reverseResultGrid = buildReverseResultGrid(resultGrid);
-    }
-    console.log("map.length", Object.getOwnPropertyNames(map).length);
-    if (origin = reverseResultGrid[matchPair[0]]) {
-      if (matchPairOrientation === "v") {
-        resultGrid[move(origin, "s")] = matchPair[1];
+      console.log("step " + stepNumber + " match:", match);
+      matchPair = match.split(/[vh]/);
+      matchPairOrientation = match.indexOf('v') !== -1 ? "v" : "h";
+      if (!placedTiles.length) {
+        origin = '0.0';
+        resultGrid[origin] = matchPair[0];
+        reverseResultGrid = buildReverseResultGrid(resultGrid);
+      }
+      console.log("map.length", Object.getOwnPropertyNames(map).length);
+      if (origin = reverseResultGrid[matchPair[0]]) {
+        if (matchPairOrientation === "v") {
+          resultGrid[move(origin, "s")] = matchPair[1];
+        } else {
+          resultGrid[move(origin, "w")] = matchPair[1];
+        }
+      } else if (origin = reverseResultGrid[matchPair[1]]) {
+        if (matchPairOrientation === "v") {
+          resultGrid[move(origin, "n")] = matchPair[1];
+        } else {
+          resultGrid[move(origin, "e")] = matchPair[1];
+        }
       } else {
-        resultGrid[move(origin, "w")] = matchPair[1];
+        console.log("oops, incorrectly matched a disjoint tile");
       }
-    } else if (origin = reverseResultGrid[matchPair[1]]) {
-      if (matchPairOrientation === "v") {
-        resultGrid[move(origin, "n")] = matchPair[1];
-      } else {
-        resultGrid[move(origin, "e")] = matchPair[1];
+      window.resultGrid = resultGrid;
+      window.reverseResultGrid = reverseResultGrid = buildReverseResultGrid(resultGrid);
+      placedTiles = Object.keys(reverseResultGrid);
+      for (key in map) {
+        if (!__hasProp.call(map, key)) continue;
+        value = map[key];
+        if (key.startsWith("" + matchPair[0] + matchPairOrientation)) {
+          delete map[key];
+        } else if (key.endsWith("" + matchPairOrientation + matchPair[1])) {
+          delete map[key];
+        }
       }
-    } else {
-      console.log("oops, incorrectly matched a disjoint tile");
+      console.log("map.length", Object.getOwnPropertyNames(map).length);
     }
-    window.resultGrid = resultGrid;
-    window.reverseResultGrid = reverseResultGrid = buildReverseResultGrid(resultGrid);
-    placedTiles = Object.keys(reverseResultGrid);
-    for (key in map) {
-      if (!__hasProp.call(map, key)) continue;
-      value = map[key];
-      if (key.startsWith("" + matchPair[0] + matchPairOrientation)) {
-        delete map[key];
-      } else if (key.endsWith("" + matchPairOrientation + matchPair[1])) {
-        delete map[key];
-      }
-    }
-    console.log("map.length", Object.getOwnPropertyNames(map).length);
-    matchDistance = 9999;
-    match = "";
-    mapFilterRe = new RegExp(("(" + (placedTiles.join(")|(")) + ")").replace(/\./g, "\\."));
-    for (testMatch in map) {
-      if (!__hasProp.call(map, testMatch)) continue;
-      testMatchDistance = map[testMatch];
-      if (mapFilterRe.test(testMatch) && testMatchDistance < matchDistance) {
-        matchDistance = testMatchDistance;
-        match = testMatch;
-      }
-    }
-    matchPair = match.split(/[vh]/);
-    matchPairOrientation = match.indexOf('v') !== -1 ? "v" : "h";
-    if (origin = reverseResultGrid[matchPair[0]]) {
-      if (matchPairOrientation === "v") {
-        resultGrid[move(origin, "s")] = matchPair[1];
-      } else {
-        resultGrid[move(origin, "w")] = matchPair[1];
-      }
-    } else if (origin = reverseResultGrid[matchPair[1]]) {
-      if (matchPairOrientation === "v") {
-        resultGrid[move(origin, "n")] = matchPair[1];
-      } else {
-        resultGrid[move(origin, "e")] = matchPair[1];
-      }
-    } else {
-      console.log("oops, incorrectly matched a disjoint tile");
-    }
-    window.resultGrid = resultGrid;
-    window.reverseResultGrid = reverseResultGrid = buildReverseResultGrid(resultGrid);
-    placedTiles = Object.keys(reverseResultGrid);
-    for (key in map) {
-      if (!__hasProp.call(map, key)) continue;
-      value = map[key];
-      if (key.startsWith("" + matchPair[0] + matchPairOrientation)) {
-        delete map[key];
-      } else if (key.endsWith("" + matchPairOrientation + matchPair[1])) {
-        delete map[key];
-      }
-    }
-    console.log("map.length", Object.getOwnPropertyNames(map).length);
     return resultGrid;
   };
 
