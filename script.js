@@ -279,7 +279,7 @@
   }
 
   getResult2 = function(tiles) {
-    var buildMap, buildReverseResultGrid, map, move, placedTiles, resultGrid, reverseResultGrid, stepNumber, _i, _inner, _ref;
+    var buildMap, buildReverseResultGrid, map, move, placedTiles, resultGrid, reverseResultGrid, stepNumber, _i, _inner;
     buildMap = function() {
       var i, map, tile1, tile2, _i, _j, _len, _len1, _ref;
       map = {};
@@ -288,8 +288,8 @@
         _ref = tiles.slice(i + 1);
         for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
           tile2 = _ref[_j];
-          map["" + tile1.id + "h" + tile2.id] = distance(tile1.e, tile2.w);
-          map["" + tile2.id + "h" + tile1.id] = distance(tile2.e, tile1.w);
+          map["" + tile1.id + "h" + tile2.id] = distance(tile1.w, tile2.e);
+          map["" + tile2.id + "h" + tile1.id] = distance(tile2.w, tile1.e);
           map["" + tile1.id + "v" + tile2.id] = distance(tile1.s, tile2.n);
           map["" + tile2.id + "v" + tile1.id] = distance(tile2.s, tile1.n);
         }
@@ -308,10 +308,10 @@
           ++bits[1];
           break;
         case "e":
-          ++bits[0];
+          --bits[0];
           break;
         case "w":
-          --bits[0];
+          ++bits[0];
       }
       return bits.join('.');
     };
@@ -389,7 +389,7 @@
       console.log("map.length", Object.getOwnPropertyNames(map).length);
       return drawGrid(resultGrid);
     };
-    for (stepNumber = _i = 1, _ref = n_slices * n_slices - 1; 1 <= _ref ? _i <= _ref : _i >= _ref; stepNumber = 1 <= _ref ? ++_i : --_i) {
+    for (stepNumber = _i = 1; _i <= 7; stepNumber = ++_i) {
       setTimeout(_inner, stepNumber * 1000);
     }
     return resultGrid;
