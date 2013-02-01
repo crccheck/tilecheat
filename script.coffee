@@ -410,7 +410,7 @@ drawGrid = (grid, srcImg=_srcImg, dstCanvas=_dstCanvas) ->
 _srcImg = ""
 _dstCanvas = ""
 
-main = ->
+go = ->
   _srcImg = img = $('img')
   width = height = img.width
   slice_w = width / n_slices
@@ -430,6 +430,10 @@ main = ->
 
   # drawGrid(resultGrid)
 
+main = ->
+  go()
+  $('go').onclick = ->
+    go()
 
 
 # $(window).load(->
