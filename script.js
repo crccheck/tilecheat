@@ -449,7 +449,7 @@
       return drawGrid(resultGrid);
     };
     for (stepNumber = _i = 1, _ref = n_slices * n_slices - 1; 1 <= _ref ? _i <= _ref : _i >= _ref; stepNumber = 1 <= _ref ? ++_i : --_i) {
-      setTimeout(_inner, stepNumber * 100);
+      setTimeout(_inner, stepNumber * 30);
     }
     return resultGrid;
   };

@@ -375,7 +375,7 @@ getResult2 = (tiles)->
 
   # for stepNumber in [1..11]
   for stepNumber in [1..(n_slices * n_slices - 1)]
-    setTimeout(_inner, stepNumber * 100)
+    setTimeout(_inner, stepNumber * 30)
 
 
 
