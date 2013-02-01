@@ -6,7 +6,7 @@
 
   n_slices = 4;
 
-  vignette_fix = 0;
+  vignette_fix = 1;
 
   retries = 0;
 

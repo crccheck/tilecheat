@@ -1,6 +1,6 @@
 # CONFIGURATION
 n_slices = 4
-vignette_fix = 0  # black levels below this will have noise artificially added
+vignette_fix = 1  # black levels below this will have noise artificially added
 retries = 0
 
 # scope hack
