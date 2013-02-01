@@ -343,7 +343,7 @@ resultIsValid = (resultGrid) ->
   return dim[0] <= n_slices and dim[1] <= n_slices
 
 
-drawGrid = (grid, srcImg, dstCanvas) ->
+drawGrid = (grid, srcImg=_srcImg, dstCanvas=_dstCanvas) ->
   width = height = img.width
   # clear canvas, resize if necessary
   dim = shape(grid)
@@ -361,13 +361,16 @@ drawGrid = (grid, srcImg, dstCanvas) ->
       sBits[0] * slice_w, sBits[1] * slice_w, slice_w, slice_w,
       dBits[0] * slice_w, dBits[1] * slice_w, slice_w, slice_w)
 
+# scope hack
+_srcImg = ""
+_dstCanvas = ""
 
 main = ->
-  img = $('img')
+  _srcImg = img = $('img')
   width = height = img.width
   slice_w = width / n_slices
 
-  canvas = $('canvas')
+  _dstCanvas = canvas = $('canvas')
   c = canvas.getContext("2d")
   c.drawImage(img, 0, 0, width, height)
 
@@ -380,7 +383,7 @@ main = ->
     console.log "try again, attempt ##{retries - _retries}"
     resultGrid = getResult2(edgeData)
 
-  drawGrid(resultGrid, img, canvas)
+  drawGrid(resultGrid)
 
 
 
