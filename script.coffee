@@ -337,16 +337,43 @@ getResult2 = (tiles)->
         delete map[key]
         continue
       matchPair = key.split(/[vh]/)
+      # remove already placed tiles
       if matchPair[0] in placedTiles and matchPair[1] in placedTiles
         delete map[key]
         continue
+    # check the other orientation of `toBePlaced`
+    # TODO this block could be executed smarter
+    if resultGrid[move(reverseResultGrid[toBePlaced], "e")]
+      console.log "!!!Delete east of #{toBePlaced}"
+      for own key, value of map
+        if key.startsWith("#{toBePlaced}h")
+          delete map[key]
+          continue
+    if resultGrid[move(reverseResultGrid[toBePlaced], "s")]
+      console.log "!!!Delete south of #{toBePlaced}"
+      for own key, value of map
+        if key.startsWith("#{toBePlaced}v")
+          delete map[key]
+          continue
+    if resultGrid[move(reverseResultGrid[toBePlaced], "n")]
+      console.log "!!!Delete north of #{toBePlaced}"
+      for own key, value of map
+        if key.endsWith("v#{toBePlaced}")
+          delete map[key]
+          continue
+    if resultGrid[move(reverseResultGrid[toBePlaced], "w")]
+      console.log "!!!Delete west of #{toBePlaced}"
+      for own key, value of map
+        if key.endsWith("h#{toBePlaced}")
+          delete map[key]
+          continue
     console.log "map.length",
                 Object.getOwnPropertyNames(map).length,
                 copy(map),
     drawGrid(resultGrid)
 
-  for stepNumber in [1..11]
-  # for stepNumber in [1..(n_slices * n_slices - 1)]
+  # for stepNumber in [1..11]
+  for stepNumber in [1..(n_slices * n_slices - 1)]
     setTimeout(_inner, stepNumber * 100)
 
 

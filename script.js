@@ -289,7 +289,7 @@
   };
 
   getResult2 = function(tiles) {
-    var buildMap, buildReverseResultGrid, map, move, placedTiles, resultGrid, reverseResultGrid, stepNumber, _i, _inner;
+    var buildMap, buildReverseResultGrid, map, move, placedTiles, resultGrid, reverseResultGrid, stepNumber, _i, _inner, _ref;
     buildMap = function() {
       var i, map, tile1, tile2, _i, _j, _len, _len1, _ref;
       map = {};
@@ -400,10 +400,54 @@
           continue;
         }
       }
+      if (resultGrid[move(reverseResultGrid[toBePlaced], "e")]) {
+        console.log("!!!Delete east of " + toBePlaced);
+        for (key in map) {
+          if (!__hasProp.call(map, key)) continue;
+          value = map[key];
+          if (key.startsWith("" + toBePlaced + "h")) {
+            delete map[key];
+            continue;
+          }
+        }
+      }
+      if (resultGrid[move(reverseResultGrid[toBePlaced], "s")]) {
+        console.log("!!!Delete south of " + toBePlaced);
+        for (key in map) {
+          if (!__hasProp.call(map, key)) continue;
+          value = map[key];
+          if (key.startsWith("" + toBePlaced + "v")) {
+            delete map[key];
+            continue;
+          }
+        }
+      }
+      if (resultGrid[move(reverseResultGrid[toBePlaced], "n")]) {
+        console.log("!!!Delete north of " + toBePlaced);
+        for (key in map) {
+          if (!__hasProp.call(map, key)) continue;
+          value = map[key];
+          if (key.endsWith("v" + toBePlaced)) {
+            delete map[key];
+            continue;
+          }
+        }
+      }
+      if (resultGrid[move(reverseResultGrid[toBePlaced], "w")]) {
+        console.log("!!!Delete west of " + toBePlaced);
+        for (key in map) {
+          if (!__hasProp.call(map, key)) continue;
+          value = map[key];
+          if (key.endsWith("h" + toBePlaced)) {
+            delete map[key];
+            continue;
+          }
+        }
+      }
       console.log("map.length", Object.getOwnPropertyNames(map).length, copy(map));
       return drawGrid(resultGrid);
     };
-    for (stepNumber = _i = 1; _i <= 11; stepNumber = ++_i) {
+    for (stepNumber = _i = 1, _ref = n_slices * n_slices - 1; 1 <= _ref ? _i <= _ref : _i >= _ref; stepNumber = 1 <= _ref ? ++_i : --_i) {
       setTimeout(_inner, stepNumber * 100);
     }
     return resultGrid;
