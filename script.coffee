@@ -287,6 +287,7 @@ getResult2 = (tiles)->
   reverseResultGrid = {}
   placedTiles = []
 
+  _inner_iteration_count = 0
   _inner = ->
     # find the closest match
     matchDistance = 9999
@@ -296,7 +297,7 @@ getResult2 = (tiles)->
       if mapFilterRe.test(testMatch) and testMatchDistance < matchDistance
         matchDistance = testMatchDistance
         match = testMatch
-    console.log "step #{stepNumber} match:", match
+    console.log "step #{++_inner_iteration_count} match:", match
 
     # place matching tile(s)
     matchPair = match.split(/[vh]/)

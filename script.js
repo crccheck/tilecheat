@@ -289,7 +289,7 @@
   };
 
   getResult2 = function(tiles) {
-    var buildMap, buildReverseResultGrid, map, move, placedTiles, resultGrid, reverseResultGrid, stepNumber, _i, _inner, _ref;
+    var buildMap, buildReverseResultGrid, map, move, placedTiles, resultGrid, reverseResultGrid, stepNumber, _i, _inner, _inner_iteration_count, _ref;
     buildMap = function() {
       var i, map, tile1, tile2, _i, _j, _len, _len1, _ref;
       map = {};
@@ -338,6 +338,7 @@
     resultGrid = {};
     reverseResultGrid = {};
     placedTiles = [];
+    _inner_iteration_count = 0;
     _inner = function() {
       var a, b, key, mapFilterRe, match, matchDistance, matchPair, matchPairOrientation, origin, testMatch, testMatchDistance, toBePlaced, value, _ref, _ref1;
       matchDistance = 9999;
@@ -351,7 +352,7 @@
           match = testMatch;
         }
       }
-      console.log("step " + stepNumber + " match:", match);
+      console.log("step " + (++_inner_iteration_count) + " match:", match);
       matchPair = match.split(/[vh]/);
       matchPairOrientation = match.indexOf('v') !== -1 ? "v" : "h";
       if (!placedTiles.length) {
