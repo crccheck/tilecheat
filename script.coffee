@@ -343,6 +343,25 @@ resultIsValid = (resultGrid) ->
   return dim[0] <= n_slices and dim[1] <= n_slices
 
 
+drawGrid = (grid, srcImg, dstCanvas) ->
+  width = height = img.width
+  # clear canvas, resize if necessary
+  dim = shape(grid)
+  dstCanvas.width = width * dim[0] / n_slices
+  dstCanvas.height = height * dim[1] / n_slices
+  c = dstCanvas.getContext("2d")
+  # c.clearRect(0, 0, canvas.width, canvas.height)  # alternate
+
+  # draw unscrambled image
+  mapping = normalizeResultGrid grid
+  for own dTile, sTile of mapping
+    sBits = sTile.split('.')
+    dBits = dTile.split('.')
+    c.drawImage(srcImg,
+      sBits[0] * slice_w, sBits[1] * slice_w, slice_w, slice_w,
+      dBits[0] * slice_w, dBits[1] * slice_w, slice_w, slice_w)
+
+
 main = ->
   img = $('img')
   width = height = img.width
@@ -361,20 +380,8 @@ main = ->
     console.log "try again, attempt ##{retries - _retries}"
     resultGrid = getResult2(edgeData)
 
-  # clear canvas, resize if necessary
-  dim = shape(resultGrid)
-  canvas.width = width * dim[0] / n_slices
-  canvas.height = height * dim[1] / n_slices
-  # c.clearRect(0, 0, canvas.width, canvas.height)  # alternate
+  drawGrid(resultGrid, img, canvas)
 
-  # draw unscrambled image
-  mapping = normalizeResultGrid resultGrid
-  for own dTile, sTile of mapping
-    sBits = sTile.split('.')
-    dBits = dTile.split('.')
-    c.drawImage(img,
-      sBits[0] * slice_w, sBits[1] * slice_w, slice_w, slice_w,
-      dBits[0] * slice_w, dBits[1] * slice_w, slice_w, slice_w)
 
 
 # $(window).load(->
