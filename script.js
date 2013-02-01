@@ -279,7 +279,7 @@
   }
 
   getResult2 = function(tiles) {
-    var buildMap, buildReverseResultGrid, key, map, mapFilterRe, match, matchDistance, matchPair, matchPairOrientation, move, origin, placedTiles, resultGrid, reverseResultGrid, stepNumber, testMatch, testMatchDistance, value, _i, _ref, _ref1, _ref2;
+    var buildMap, buildReverseResultGrid, map, move, placedTiles, resultGrid, reverseResultGrid, stepNumber, _i, _inner, _ref;
     buildMap = function() {
       var i, map, tile1, tile2, _i, _j, _len, _len1, _ref;
       map = {};
@@ -328,7 +328,8 @@
     resultGrid = {};
     reverseResultGrid = {};
     placedTiles = [];
-    for (stepNumber = _i = 1, _ref = n_slices * n_slices - 1; 1 <= _ref ? _i <= _ref : _i >= _ref; stepNumber = 1 <= _ref ? ++_i : --_i) {
+    _inner = function() {
+      var key, mapFilterRe, match, matchDistance, matchPair, matchPairOrientation, origin, testMatch, testMatchDistance, value, _ref, _ref1;
       matchDistance = 9999;
       match = "";
       mapFilterRe = new RegExp(("(" + (placedTiles.join(")|(")) + ")").replace(/\./g, "\\."));
@@ -380,12 +381,16 @@
           continue;
         }
         matchPair = key.split(/[vh]/);
-        if ((_ref1 = matchPair[0], __indexOf.call(placedTiles, _ref1) >= 0) && (_ref2 = matchPair[1], __indexOf.call(placedTiles, _ref2) >= 0)) {
+        if ((_ref = matchPair[0], __indexOf.call(placedTiles, _ref) >= 0) && (_ref1 = matchPair[1], __indexOf.call(placedTiles, _ref1) >= 0)) {
           delete map[key];
           continue;
         }
       }
       console.log("map.length", Object.getOwnPropertyNames(map).length);
+      return drawGrid(resultGrid);
+    };
+    for (stepNumber = _i = 1, _ref = n_slices * n_slices - 1; 1 <= _ref ? _i <= _ref : _i >= _ref; stepNumber = 1 <= _ref ? ++_i : --_i) {
+      setTimeout(_inner, stepNumber * 1000);
     }
     return resultGrid;
   };
@@ -426,7 +431,7 @@
   _dstCanvas = "";
 
   main = function() {
-    var c, canvas, edgeData, height, imageData, img, resultGrid, _retries;
+    var c, canvas, edgeData, height, imageData, img, resultGrid, _results, _retries;
     _srcImg = img = $('img');
     width = height = img.width;
     slice_w = width / n_slices;
@@ -437,11 +442,12 @@
     edgeData = getAllEdgeData(imageData.data);
     _retries = retries;
     resultGrid = getResult2(edgeData);
+    _results = [];
     while (_retries-- && !resultIsValid(resultGrid)) {
       console.log("try again, attempt #" + (retries - _retries));
-      resultGrid = getResult2(edgeData);
+      _results.push(resultGrid = getResult2(edgeData));
     }
-    return drawGrid(resultGrid);
+    return _results;
   };
 
   main();

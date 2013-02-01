@@ -283,7 +283,7 @@ getResult2 = (tiles)->
   reverseResultGrid = {}
   placedTiles = []
 
-  for stepNumber in [1..(n_slices * n_slices - 1)]
+  _inner = ->
     # find the closest match
     matchDistance = 9999
     match = ""
@@ -333,6 +333,10 @@ getResult2 = (tiles)->
         delete map[key]
         continue
     console.log "map.length", Object.getOwnPropertyNames(map).length
+    drawGrid(resultGrid)
+
+  for stepNumber in [1..(n_slices * n_slices - 1)]
+    setTimeout(_inner, stepNumber * 1000)
 
   return resultGrid
 
@@ -383,7 +387,7 @@ main = ->
     console.log "try again, attempt ##{retries - _retries}"
     resultGrid = getResult2(edgeData)
 
-  drawGrid(resultGrid)
+  # drawGrid(resultGrid)
 
 
 
