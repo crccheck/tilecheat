@@ -289,7 +289,7 @@
   };
 
   getResult2 = function(tiles) {
-    var buildMap, buildReverseResultGrid, map, move, placedTiles, resultGrid, reverseResultGrid, stepNumber, _i, _inner, _ref;
+    var buildMap, buildReverseResultGrid, map, move, placedTiles, resultGrid, reverseResultGrid, stepNumber, _i, _inner;
     buildMap = function() {
       var i, map, tile1, tile2, _i, _j, _len, _len1, _ref;
       map = {};
@@ -307,7 +307,7 @@
       return map;
     };
     window.map = map = buildMap();
-    move = function(coord, direction) {
+    window.move = move = function(coord, direction) {
       var bits;
       bits = String(coord).split('.');
       switch (direction) {
@@ -318,10 +318,10 @@
           ++bits[1];
           break;
         case "e":
-          --bits[0];
+          ++bits[0];
           break;
         case "w":
-          ++bits[0];
+          --bits[0];
       }
       return bits.join('.');
     };
@@ -339,7 +339,7 @@
     reverseResultGrid = {};
     placedTiles = [];
     _inner = function() {
-      var a, b, key, mapFilterRe, match, matchDistance, matchPair, matchPairOrientation, origin, testMatch, testMatchDistance, value, _ref, _ref1;
+      var a, b, key, mapFilterRe, match, matchDistance, matchPair, matchPairOrientation, origin, testMatch, testMatchDistance, toBePlaced, value, _ref, _ref1;
       matchDistance = 9999;
       match = "";
       mapFilterRe = new RegExp(("(" + (placedTiles.join(")|(")) + ")").replace(/\./g, "\\."));
@@ -363,16 +363,18 @@
       a = matchPair[0];
       b = matchPair[1];
       if (origin = reverseResultGrid[a]) {
+        toBePlaced = b;
         if (matchPairOrientation === "v") {
           resultGrid[move(origin, "s")] = b;
         } else {
-          resultGrid[move(origin, "w")] = b;
+          resultGrid[move(origin, "e")] = b;
         }
       } else if (origin = reverseResultGrid[b]) {
+        toBePlaced = a;
         if (matchPairOrientation === "v") {
           resultGrid[move(origin, "n")] = a;
         } else {
-          resultGrid[move(origin, "e")] = a;
+          resultGrid[move(origin, "w")] = a;
         }
       } else {
         console.error("oops, incorrectly matched a disjoint tile");
@@ -401,7 +403,7 @@
       console.log("map.length", Object.getOwnPropertyNames(map).length, copy(map));
       return drawGrid(resultGrid);
     };
-    for (stepNumber = _i = 1, _ref = n_slices * n_slices - 1; 1 <= _ref ? _i <= _ref : _i >= _ref; stepNumber = 1 <= _ref ? ++_i : --_i) {
+    for (stepNumber = _i = 1; _i <= 11; stepNumber = ++_i) {
       setTimeout(_inner, stepNumber * 100);
     }
     return resultGrid;

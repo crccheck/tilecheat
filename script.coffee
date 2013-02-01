@@ -267,13 +267,13 @@ getResult2 = (tiles)->
     return map
   window.map = map = buildMap()
 
-  move = (coord, direction) ->
+  window.move = move = (coord, direction) ->
     bits = String(coord).split('.')
     switch direction
       when "n" then --bits[1]
       when "s" then ++bits[1]
-      when "e" then --bits[0]
-      when "w" then ++bits[0]
+      when "e" then ++bits[0]
+      when "w" then --bits[0]
     return bits.join('.')
 
   # less efficient, but more readable
@@ -309,15 +309,17 @@ getResult2 = (tiles)->
     a = matchPair[0]
     b = matchPair[1]
     if origin = reverseResultGrid[a]
+      toBePlaced = b
       if matchPairOrientation == "v"
         resultGrid[move(origin, "s")] = b
       else
-        resultGrid[move(origin, "w")] = b
+        resultGrid[move(origin, "e")] = b
     else if origin = reverseResultGrid[b]
+      toBePlaced = a
       if matchPairOrientation == "v"
         resultGrid[move(origin, "n")] = a
       else
-        resultGrid[move(origin, "e")] = a
+        resultGrid[move(origin, "w")] = a
     else
       console.error "oops, incorrectly matched a disjoint tile"
       return resultGrid
@@ -338,11 +340,13 @@ getResult2 = (tiles)->
       if matchPair[0] in placedTiles and matchPair[1] in placedTiles
         delete map[key]
         continue
-    console.log "map.length", Object.getOwnPropertyNames(map).length, copy(map)
+    console.log "map.length",
+                Object.getOwnPropertyNames(map).length,
+                copy(map),
     drawGrid(resultGrid)
 
-  # for stepNumber in [1..10]
-  for stepNumber in [1..(n_slices * n_slices - 1)]
+  for stepNumber in [1..11]
+  # for stepNumber in [1..(n_slices * n_slices - 1)]
     setTimeout(_inner, stepNumber * 100)
 
 
