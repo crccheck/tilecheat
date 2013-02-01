@@ -243,6 +243,12 @@ if !String::startsWith
   String::startsWith = (s) -> this.substring(0, s.length) == s
 if !String::endsWith
   String::endsWith = (s) -> this.substring(this.length - s.length) == s
+copy = (o) ->
+  r = {}
+  for k, v of o
+    r[k] = v
+  return r
+
 
 # attempt 2
 getResult2 = (tiles)->
@@ -332,7 +338,7 @@ getResult2 = (tiles)->
       if matchPair[0] in placedTiles and matchPair[1] in placedTiles
         delete map[key]
         continue
-    console.log "map.length", Object.getOwnPropertyNames(map).length
+    console.log "map.length", Object.getOwnPropertyNames(map).length, copy(map)
     drawGrid(resultGrid)
 
   # for stepNumber in [1..10]
