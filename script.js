@@ -279,7 +279,7 @@
   }
 
   getResult2 = function(tiles) {
-    var buildMap, buildReverseResultGrid, map, move, placedTiles, resultGrid, reverseResultGrid, stepNumber, _i, _inner;
+    var buildMap, buildReverseResultGrid, map, move, placedTiles, resultGrid, reverseResultGrid, stepNumber, _i, _inner, _ref;
     buildMap = function() {
       var i, map, tile1, tile2, _i, _j, _len, _len1, _ref;
       map = {};
@@ -329,7 +329,7 @@
     reverseResultGrid = {};
     placedTiles = [];
     _inner = function() {
-      var key, mapFilterRe, match, matchDistance, matchPair, matchPairOrientation, origin, testMatch, testMatchDistance, value, _ref, _ref1;
+      var a, b, key, mapFilterRe, match, matchDistance, matchPair, matchPairOrientation, origin, testMatch, testMatchDistance, value, _ref, _ref1;
       matchDistance = 9999;
       match = "";
       mapFilterRe = new RegExp(("(" + (placedTiles.join(")|(")) + ")").replace(/\./g, "\\."));
@@ -350,17 +350,19 @@
         reverseResultGrid = buildReverseResultGrid(resultGrid);
       }
       console.log("map.length", Object.getOwnPropertyNames(map).length);
-      if (origin = reverseResultGrid[matchPair[0]]) {
+      a = matchPair[0];
+      b = matchPair[1];
+      if (origin = reverseResultGrid[a]) {
         if (matchPairOrientation === "v") {
-          resultGrid[move(origin, "s")] = matchPair[1];
+          resultGrid[move(origin, "s")] = b;
         } else {
-          resultGrid[move(origin, "w")] = matchPair[1];
+          resultGrid[move(origin, "w")] = b;
         }
-      } else if (origin = reverseResultGrid[matchPair[1]]) {
+      } else if (origin = reverseResultGrid[b]) {
         if (matchPairOrientation === "v") {
-          resultGrid[move(origin, "n")] = matchPair[0];
+          resultGrid[move(origin, "n")] = a;
         } else {
-          resultGrid[move(origin, "e")] = matchPair[0];
+          resultGrid[move(origin, "e")] = a;
         }
       } else {
         console.error("oops, incorrectly matched a disjoint tile");
@@ -372,11 +374,11 @@
       for (key in map) {
         if (!__hasProp.call(map, key)) continue;
         value = map[key];
-        if (key.startsWith("" + matchPair[0] + matchPairOrientation)) {
+        if (key.startsWith("" + a + matchPairOrientation)) {
           delete map[key];
           continue;
         }
-        if (key.endsWith("" + matchPairOrientation + matchPair[1])) {
+        if (key.endsWith("" + matchPairOrientation + b)) {
           delete map[key];
           continue;
         }
@@ -389,8 +391,8 @@
       console.log("map.length", Object.getOwnPropertyNames(map).length);
       return drawGrid(resultGrid);
     };
-    for (stepNumber = _i = 1; _i <= 7; stepNumber = ++_i) {
-      setTimeout(_inner, stepNumber * 1000);
+    for (stepNumber = _i = 1, _ref = n_slices * n_slices - 1; 1 <= _ref ? _i <= _ref : _i >= _ref; stepNumber = 1 <= _ref ? ++_i : --_i) {
+      setTimeout(_inner, stepNumber * 100);
     }
     return resultGrid;
   };

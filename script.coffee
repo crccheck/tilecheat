@@ -240,11 +240,9 @@ getResult = (edgeData)->
 
 # helpers
 if !String::startsWith
-  String::startsWith = (s) ->
-    return this.substring(0, s.length) == s
+  String::startsWith = (s) -> this.substring(0, s.length) == s
 if !String::endsWith
-  String::endsWith = (s) ->
-    return this.substring(this.length - s.length) == s
+  String::endsWith = (s) -> this.substring(this.length - s.length) == s
 
 # attempt 2
 getResult2 = (tiles)->
@@ -302,16 +300,18 @@ getResult2 = (tiles)->
       resultGrid[origin] = matchPair[0]
       reverseResultGrid = buildReverseResultGrid(resultGrid)
     console.log "map.length", Object.getOwnPropertyNames(map).length
-    if origin = reverseResultGrid[matchPair[0]]
+    a = matchPair[0]
+    b = matchPair[1]
+    if origin = reverseResultGrid[a]
       if matchPairOrientation == "v"
-        resultGrid[move(origin, "s")] = matchPair[1]
+        resultGrid[move(origin, "s")] = b
       else
-        resultGrid[move(origin, "w")] = matchPair[1]
-    else if origin = reverseResultGrid[matchPair[1]]
+        resultGrid[move(origin, "w")] = b
+    else if origin = reverseResultGrid[b]
       if matchPairOrientation == "v"
-        resultGrid[move(origin, "n")] = matchPair[0]
+        resultGrid[move(origin, "n")] = a
       else
-        resultGrid[move(origin, "e")] = matchPair[0]
+        resultGrid[move(origin, "e")] = a
     else
       console.error "oops, incorrectly matched a disjoint tile"
       return resultGrid
@@ -322,10 +322,10 @@ getResult2 = (tiles)->
     placedTiles = Object.keys(reverseResultGrid)
     # eliminate all invalid matches
     for own key, value of map
-      if key.startsWith("#{matchPair[0]}#{matchPairOrientation}")
+      if key.startsWith("#{a}#{matchPairOrientation}")
         delete map[key]
         continue
-      if key.endsWith("#{matchPairOrientation}#{matchPair[1]}")
+      if key.endsWith("#{matchPairOrientation}#{b}")
         delete map[key]
         continue
       matchPair = key.split(/[vh]/)
@@ -335,9 +335,9 @@ getResult2 = (tiles)->
     console.log "map.length", Object.getOwnPropertyNames(map).length
     drawGrid(resultGrid)
 
-  for stepNumber in [1..7]
-  # for stepNumber in [1..(n_slices * n_slices - 1)]
-    setTimeout(_inner, stepNumber * 1000)
+  # for stepNumber in [1..10]
+  for stepNumber in [1..(n_slices * n_slices - 1)]
+    setTimeout(_inner, stepNumber * 100)
 
 
 
