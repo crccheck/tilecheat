@@ -62,15 +62,32 @@ getEdgeData = (d, m, n) ->
   return data
 
 
+getEdgeComplexity = (edge) ->
+  # quantitize array using bitshifting
+  # only look at luminance (L) channel
+  simplified = (x.l>>3 for x in edge)
+  entropy = 0
+  last = undefined
+  for x in simplified
+    if x != last
+      # TODO add more entropy for bigger jumps
+      entropy += 1
+      last = x
+  # entropy will be >= 1
+  return entropy
+
+
 # get the distance between two edges
 distance = (d1, d2) ->
   sum = 0
+  entropy1 = getEdgeComplexity(d1)
+  entropy2 = getEdgeComplexity(d2)
   for color1, idx in d1
     color2 = d2[idx]
     sum += Math.pow(color2.l - color1.l, 2)
     sum += Math.pow(color2.a - color1.a, 2)
     sum += Math.pow(color2.b - color1.b, 2)
-  return Math.sqrt sum
+  return Math.sqrt sum / entropy1 / entropy2
 
 
 # for Array.sort
