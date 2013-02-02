@@ -2,6 +2,7 @@
 n_slices = 4
 vignette_fix = 1  # black levels below this will have noise artificially added
 retries = 0
+draw_delay = 1000
 
 # scope hack
 slice_w = 0
@@ -375,7 +376,7 @@ getResult2 = (tiles)->
 
   # for stepNumber in [1..11]
   for stepNumber in [1..(n_slices * n_slices - 1)]
-    setTimeout(_inner, stepNumber * 30)
+    setTimeout(_inner, stepNumber * draw_delay)
 
 
 
