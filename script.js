@@ -208,6 +208,10 @@
 
   width = 0;
 
+  _srcImg = "";
+
+  _dstCanvas = "";
+
   getPixel = function(d, x, y) {
     var index, lab, rgb;
     index = (x + y * width) * 4;
@@ -233,17 +237,17 @@
     return d;
   };
 
-  getEdgeData = function(d, m, n) {
+  getEdgeData = function(d, x, y) {
     var data, i, j, x_begin, x_end, y_begin, y_end, _i, _j;
-    x_begin = m * slice_w;
+    x_begin = x * slice_w;
     x_end = x_begin + slice_w - 1;
-    y_begin = n * slice_w;
+    y_begin = y * slice_w;
     y_end = y_begin + slice_w - 1;
     data = {
-      id: "" + m + "." + n,
+      id: "" + x + "." + y,
       grid: {
-        m: m,
-        n: n
+        x: x,
+        y: y
       },
       n: [],
       s: [],
@@ -445,10 +449,6 @@
     }
     return _results;
   };
-
-  _srcImg = "";
-
-  _dstCanvas = "";
 
   go = function() {
     var c, canvas, edgeData, height, imageData, img, resultGrid, _results, _retries;

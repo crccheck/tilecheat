@@ -4,11 +4,18 @@ vignette_fix = 1  # black levels below this will have noise artificially added
 retries = 0
 draw_delay = 1000
 
-# scope hack
+# coffeescript scope hack
 slice_w = 0
 width = 0
+_srcImg = ""
+_dstCanvas = ""
 
 
+# ###Interacting with a pixel array
+
+# Get the color information about a coordinate `x`, `y` in pixel array `d`.
+# Instead of using RGB from the raw data, use LAB by default since working in a
+# colorspace that mimics human perception yields better results.
 getPixel = (d, x, y) ->
   index = (x + y * width) * 4
   rgb =
@@ -21,31 +28,29 @@ getPixel = (d, x, y) ->
   return lab
 
 
-# for debugging, replace getPixel with this to see which pixels are getting touched.
+# For debugging, replace `getPixel` with this to see which pixels are actually
+# getting touched by `getPixel`.
 setPixel = (d, x, y) ->
   index = (x + y * width) * 4
   rgba = [d[index], d[index + 1], d[index + 2], d[index + 3]]
-  # console.log rgba
   d[index] = 0
   d[index + 1] = 0
   d[index + 2] = 0
   return d
 
 
-# arguments:
-#  d: imageData
-#  m: horizontal slice coordinate (0 based)
-#  n: vertical slice coordinate (0 based)
-getEdgeData = (d, m, n) ->
-  x_begin = m * slice_w
+# Get the top `n`, right `e`, bottom `s`, and left `w` description of a slice
+# of imageData `d`.
+getEdgeData = (d, x, y) ->
+  x_begin = x * slice_w
   x_end = x_begin + slice_w - 1
-  y_begin = n * slice_w
+  y_begin = y * slice_w
   y_end = y_begin + slice_w - 1
   data =
-    id: "#{m}.#{n}"
+    id: "#{x}.#{y}"
     grid:
-      m: m
-      n: n
+      x: x
+      y: y
     n: []
     s: []
     e: []
@@ -207,9 +212,6 @@ drawGrid = (grid, srcImg=_srcImg, dstCanvas=_dstCanvas) ->
       sBits[0] * slice_w, sBits[1] * slice_w, slice_w, slice_w,
       dBits[0] * slice_w, dBits[1] * slice_w, slice_w, slice_w)
 
-# scope hack
-_srcImg = ""
-_dstCanvas = ""
 
 go = ->
   _srcImg = img = $('img')
