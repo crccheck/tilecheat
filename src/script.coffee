@@ -213,12 +213,17 @@ drawGrid = (grid, srcImg=_srcImg, dstCanvas=_dstCanvas) ->
       dBits[0] * slice_w, dBits[1] * slice_w, slice_w, slice_w)
 
 
-go = ->
-  _srcImg = img = $('img')
+exports = this
+
+
+exports.descrambleImg = (img, options) ->
+  _srcImg = img
   width = height = img.width
   slice_w = width / n_slices
 
-  _dstCanvas = canvas = $('canvas')
+  _dstCanvas = canvas = document.createElement('canvas');
+  canvas.width = width
+  canvas.height = height
   c = canvas.getContext("2d")
   c.drawImage(img, 0, 0, width, height)
 
@@ -232,10 +237,14 @@ go = ->
     resultGrid = getResult2(edgeData)
 
   # drawGrid(resultGrid)
+  return canvas
 
-exports = this
 
 exports.main = ->
-  go()
+  img = $('img')
+  canvas = descrambleImg(img)
+  $('canvas-container').appendChild(canvas)
   $('go').onclick = ->
-    go()
+    $('canvas-container').removeChild(canvas)
+    canvas = descrambleImg(img)
+    $('canvas-container').appendChild(canvas)
