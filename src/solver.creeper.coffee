@@ -1,9 +1,18 @@
-# attempt 2
+# attempt 2.
+#
+# This solver find the best possible matching pair, and then finds the the next
+# tile that best matches an already placed tile until it runs out of tiles.
+
+#
 getResult2 = (tiles)->
-  # build map of every edge distance possible.
+  # Build map of every edge distance possible.
   #
-  # I think this is O(4n!) keys are <tile><orientation><tile>, where orientation
-  # is (v)ertical or (h)orizontal
+  # I think this is O(4n^2!), which doesn't sound very efficient, but a 16x16
+  # grid only makes 480 entries. There will be 4 * C(n^2, 2) entries, so 10
+  # slices per side will make 4950 entries. Keys are
+  # `<tile><orientation><tile>`, where orientation is (v)ertical or
+  # (h)orizontal. If this were a typed language, I could probably save some
+  # memory and eke out some performance by making distance an integer.
   delay = _options.draw_delay
   buildMap = ->
     map = {}
@@ -16,6 +25,7 @@ getResult2 = (tiles)->
     return map
   window.map = map = buildMap()
 
+  # Get the resulting coordinate moving N/S/E/W from an existing coordinate.
   window.move = move = (coord, direction) ->
     bits = String(coord).split('.')
     switch direction
@@ -25,7 +35,9 @@ getResult2 = (tiles)->
       when "w" then --bits[0]
     return bits.join('.')
 
-  # less efficient, but more readable
+  # Build the converse of the `reverseGrid` so we can look up where a tile was
+  # placed. Not very efficient than the code I used to have, but made things
+  # more readable. Somewhere a garbage collector is crying.
   buildReverseResultGrid = (input) ->
     output = {}
     for own key, value of input
@@ -38,7 +50,11 @@ getResult2 = (tiles)->
 
   _inner_iteration_count = 0
   _inner = ->
-    # find the closest match
+    # Find the closest match. As more tiles get placed, the regular expression
+    # gets more complex, and the first time through the loop, it is unnecessary.
+    # It is important to this algorithm that we only find matches to already
+    # places tiles because trying to handle simultanous disjoint sets would
+    # suuuuuuuck.
     matchDistance = 9999
     match = ""
     mapFilterRe = new RegExp("(#{placedTiles.join(")|(")})".replace(/\./g, "\\."))
@@ -48,7 +64,7 @@ getResult2 = (tiles)->
         match = testMatch
     console.log "step #{++_inner_iteration_count} match:", match
 
-    # place matching tile(s)
+    # Place the matching tile, `match` (two tiles the first time).
     matchPair = match.split(/[vh]/)
     matchPairOrientation = if match.indexOf('v') != -1 then "v" else "h"
     if !placedTiles.length  # this is our first time through the loop
@@ -74,11 +90,13 @@ getResult2 = (tiles)->
       console.error "oops, incorrectly matched a disjoint tile"
       return resultGrid
 
-    # cleanup and setup for the next run through the loop
+    # Cleanup and setup for the next run through the loop.
+
+    #
     window.resultGrid = resultGrid
     window.reverseResultGrid = reverseResultGrid = buildReverseResultGrid(resultGrid)
     placedTiles = Object.keys(reverseResultGrid)
-    # eliminate all invalid matches
+    # Eliminate all invalid matches.
     for own key, value of map
       if key.startsWith("#{a}#{matchPairOrientation}")
         delete map[key]
@@ -91,7 +109,7 @@ getResult2 = (tiles)->
       if matchPair[0] in placedTiles and matchPair[1] in placedTiles
         delete map[key]
         continue
-    # check the other orientation of `toBePlaced`
+    # Check the other orientation of `toBePlaced`.
     # TODO this block could be executed smarter
     if resultGrid[move(reverseResultGrid[toBePlaced], "e")]
       console.log "!!!Delete east of #{toBePlaced}"
