@@ -16,7 +16,7 @@ server:
 
 
 jswatch:
-	coffee -wc script.coffee
+	coffee -wc -j script.coffee src/
 
 
 .PHONY: build dev devdev server jswatch
