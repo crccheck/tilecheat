@@ -323,72 +323,6 @@
     return Math.sqrt(sum / entropy1 / entropy2);
   };
 
-  bestMatchSort = function(a, b) {
-    return a[0] - b[0];
-  };
-
-  findNeighbor = function(targetSlice, edgeData, edges) {
-    var allMatches, bestMatch, currentMatches, data, _i, _j, _k, _l, _len, _len1, _len2, _len3;
-    if (edges == null) {
-      edges = "news";
-    }
-    allMatches = [];
-    if (__indexOf.call(edges, "n") >= 0) {
-      currentMatches = [];
-      for (_i = 0, _len = edgeData.length; _i < _len; _i++) {
-        data = edgeData[_i];
-        currentMatches.push([distance(targetSlice.n, data.s), data.id, "n"]);
-      }
-      allMatches.push(currentMatches.sort(bestMatchSort)[0]);
-    }
-    if (__indexOf.call(edges, "s") >= 0) {
-      currentMatches = [];
-      for (_j = 0, _len1 = edgeData.length; _j < _len1; _j++) {
-        data = edgeData[_j];
-        currentMatches.push([distance(targetSlice.s, data.n), data.id, "s"]);
-      }
-      allMatches.push(currentMatches.sort(bestMatchSort)[0]);
-    }
-    if (__indexOf.call(edges, "e") >= 0) {
-      currentMatches = [];
-      for (_k = 0, _len2 = edgeData.length; _k < _len2; _k++) {
-        data = edgeData[_k];
-        currentMatches.push([distance(targetSlice.e, data.w), data.id, "e"]);
-      }
-      allMatches.push(currentMatches.sort(bestMatchSort)[0]);
-    }
-    if (__indexOf.call(edges, "w") >= 0) {
-      currentMatches = [];
-      for (_l = 0, _len3 = edgeData.length; _l < _len3; _l++) {
-        data = edgeData[_l];
-        currentMatches.push([distance(targetSlice.w, data.e), data.id, "w"]);
-      }
-      allMatches.push(currentMatches.sort(bestMatchSort)[0]);
-    }
-    return bestMatch = allMatches.sort(bestMatchSort)[0];
-  };
-
-  window.validEdge = validEdges = function(startCoord, resultGrid) {
-    var bits, edges, x, y;
-    bits = startCoord.split('.');
-    x = +bits[0];
-    y = +bits[1];
-    edges = "";
-    if (!resultGrid["" + x + "." + (y - 1)]) {
-      edges += "n";
-    }
-    if (!resultGrid["" + x + "." + (y + 1)]) {
-      edges += "s";
-    }
-    if (!resultGrid["" + (x - 1) + "." + y]) {
-      edges += "e";
-    }
-    if (!resultGrid["" + (x + 1) + "." + y]) {
-      edges += "w";
-    }
-    return edges;
-  };
-
   normalizeResultGrid = function(input) {
     var bits, key, minX, minY, newObj, value;
     minX = 99;
@@ -510,6 +444,72 @@
       });
       return $('canvas-container').appendChild(canvas);
     };
+  };
+
+  bestMatchSort = function(a, b) {
+    return a[0] - b[0];
+  };
+
+  findNeighbor = function(targetSlice, edgeData, edges) {
+    var allMatches, bestMatch, currentMatches, data, _i, _j, _k, _l, _len, _len1, _len2, _len3;
+    if (edges == null) {
+      edges = "news";
+    }
+    allMatches = [];
+    if (__indexOf.call(edges, "n") >= 0) {
+      currentMatches = [];
+      for (_i = 0, _len = edgeData.length; _i < _len; _i++) {
+        data = edgeData[_i];
+        currentMatches.push([distance(targetSlice.n, data.s), data.id, "n"]);
+      }
+      allMatches.push(currentMatches.sort(bestMatchSort)[0]);
+    }
+    if (__indexOf.call(edges, "s") >= 0) {
+      currentMatches = [];
+      for (_j = 0, _len1 = edgeData.length; _j < _len1; _j++) {
+        data = edgeData[_j];
+        currentMatches.push([distance(targetSlice.s, data.n), data.id, "s"]);
+      }
+      allMatches.push(currentMatches.sort(bestMatchSort)[0]);
+    }
+    if (__indexOf.call(edges, "e") >= 0) {
+      currentMatches = [];
+      for (_k = 0, _len2 = edgeData.length; _k < _len2; _k++) {
+        data = edgeData[_k];
+        currentMatches.push([distance(targetSlice.e, data.w), data.id, "e"]);
+      }
+      allMatches.push(currentMatches.sort(bestMatchSort)[0]);
+    }
+    if (__indexOf.call(edges, "w") >= 0) {
+      currentMatches = [];
+      for (_l = 0, _len3 = edgeData.length; _l < _len3; _l++) {
+        data = edgeData[_l];
+        currentMatches.push([distance(targetSlice.w, data.e), data.id, "w"]);
+      }
+      allMatches.push(currentMatches.sort(bestMatchSort)[0]);
+    }
+    return bestMatch = allMatches.sort(bestMatchSort)[0];
+  };
+
+  window.validEdge = validEdges = function(startCoord, resultGrid) {
+    var bits, edges, x, y;
+    bits = startCoord.split('.');
+    x = +bits[0];
+    y = +bits[1];
+    edges = "";
+    if (!resultGrid["" + x + "." + (y - 1)]) {
+      edges += "n";
+    }
+    if (!resultGrid["" + x + "." + (y + 1)]) {
+      edges += "s";
+    }
+    if (!resultGrid["" + (x - 1) + "." + y]) {
+      edges += "e";
+    }
+    if (!resultGrid["" + (x + 1) + "." + y]) {
+      edges += "w";
+    }
+    return edges;
   };
 
   getResult = function(edgeData) {

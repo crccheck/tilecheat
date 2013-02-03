@@ -1,5 +1,62 @@
 # get a resultGrid based on the edgeData
   # attempt 1, the long, stupid, dirty way
+
+
+# for Array.sort
+bestMatchSort = (a, b) -> a[0] - b[0]
+
+
+# find the best neighbor for `targetSlice` from `edgeData`
+findNeighbor = (targetSlice, edgeData, edges="news")->
+  allMatches = []
+  if "n" in edges
+    # find north match
+    currentMatches = []
+    for data in edgeData
+      currentMatches.push([distance(targetSlice.n, data.s), data.id, "n"])
+    allMatches.push(currentMatches.sort(bestMatchSort)[0])
+  if "s" in edges
+    # find south match
+    currentMatches = []
+    for data in edgeData
+      currentMatches.push([distance(targetSlice.s, data.n), data.id, "s"])
+    allMatches.push(currentMatches.sort(bestMatchSort)[0])
+  if "e" in edges
+    # find east match
+    currentMatches = []
+    for data in edgeData
+      currentMatches.push([distance(targetSlice.e, data.w), data.id, "e"])
+    allMatches.push(currentMatches.sort(bestMatchSort)[0])
+  if "w" in edges
+    # find west match
+    currentMatches = []
+    for data in edgeData
+      currentMatches.push([distance(targetSlice.w, data.e), data.id, "w"])
+    allMatches.push(currentMatches.sort(bestMatchSort)[0])
+
+  bestMatch = allMatches.sort(bestMatchSort)[0]
+
+
+# return empty sides
+#
+# if a tile already has blocks above and below, return "ew" so findneighber
+# knows not to look north or south.
+window.validEdge = validEdges = (startCoord, resultGrid) ->
+  bits = startCoord.split('.')
+  x = +bits[0]
+  y = +bits[1]
+  edges = ""
+  if !resultGrid["#{x}.#{y-1}"]
+    edges += "n"
+  if !resultGrid["#{x}.#{y+1}"]
+    edges += "s"
+  if !resultGrid["#{x-1}.#{y}"]
+    edges += "e"
+  if !resultGrid["#{x+1}.#{y}"]
+    edges += "w"
+  return edges
+
+
 getResult = (edgeData)->
   # pick a starting tile
   start = edgeData[Math.floor(Math.random() * edgeData.length)]
