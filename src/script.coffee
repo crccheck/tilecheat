@@ -7,7 +7,7 @@ vignette_fix = 1  # black levels below this will have noise artificially added
 
 # coffeescript scope hack
 slice_w = 0
-width = 0
+_width = 0
 _srcImg = ""
 _dstCanvas = ""
 _options = {}
@@ -19,7 +19,7 @@ _options = {}
 # Instead of using RGB from the raw data, use LAB by default since working in a
 # colorspace that mimics human perception yields better results.
 getPixel = (d, x, y) ->
-  index = (x + y * width) * 4
+  index = (x + y * _width) * 4
   rgb =
     r: d[index]
     g: d[index + 1]
@@ -33,7 +33,7 @@ getPixel = (d, x, y) ->
 # For debugging, replace `getPixel` with this to see which pixels are actually
 # getting touched by `getPixel`.
 setPixel = (d, x, y) ->
-  index = (x + y * width) * 4
+  index = (x + y * _width) * 4
   rgba = [d[index], d[index + 1], d[index + 2], d[index + 3]]
   d[index] = 0
   d[index + 1] = 0
@@ -142,10 +142,10 @@ resultIsValid = (resultGrid) ->
 
 
 drawGrid = (grid, srcImg=_srcImg, dstCanvas=_dstCanvas) ->
-  width = height = img.width
+  height = _width
   # clear canvas, resize if necessary
   dim = shape(grid)
-  dstCanvas.width = width * dim[0] / n_slices
+  dstCanvas.width = _width * dim[0] / n_slices
   dstCanvas.height = height * dim[1] / n_slices
   c = dstCanvas.getContext("2d")
   # c.clearRect(0, 0, canvas.width, canvas.height)  # alternate
@@ -167,16 +167,16 @@ exports.descrambleImg = (img, options) ->
   extend _options, defaultOptions
   extend _options, options
   _srcImg = img
-  width = height = img.width
-  slice_w = width / n_slices
+  _width = height = img.naturalWidth
+  slice_w = _width / n_slices
 
   _dstCanvas = canvas = document.createElement('canvas');
-  canvas.width = width
+  canvas.width = _width
   canvas.height = height
   c = canvas.getContext("2d")
-  c.drawImage(img, 0, 0, width, height)
+  c.drawImage(img, 0, 0, _width, height)
 
-  imageData = c.getImageData(0, 0, width, height)
+  imageData = c.getImageData(0, 0, _width, height)
   edgeData = getAllEdgeData imageData.data
 
   _retries = retries
