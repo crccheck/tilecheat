@@ -3,12 +3,12 @@ build:
 	coffee -c script.coffee
 
 
-dev:
-	@$(MAKE) -s -j3 devdev
+dev: docs
+	@$(MAKE) -s -j2 devdev
 
 
 # run server and coffeescript watcher
-devdev: server jswatch docs
+devdev: server jswatch
 
 
 server:
