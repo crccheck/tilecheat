@@ -4,6 +4,7 @@ getResult2 = (tiles)->
   #
   # I think this is O(4n!) keys are <tile><orientation><tile>, where orientation
   # is (v)ertical or (h)orizontal
+  delay = _options.draw_delay
   buildMap = ->
     map = {}
     for tile1, i in tiles
@@ -119,12 +120,14 @@ getResult2 = (tiles)->
     console.log "map.length",
                 Object.getOwnPropertyNames(map).length,
                 copy(map),
-    drawGrid(resultGrid)
+    if delay
+      drawGrid(resultGrid)  # TODO use pubsub instead of just calling this
 
   # for stepNumber in [1..11]
   for stepNumber in [1..(n_slices * n_slices - 1)]
-    setTimeout(_inner, stepNumber * _options.draw_delay)
-
-
+    if delay
+      setTimeout(_inner, stepNumber * _options.draw_delay)
+    else
+      _inner()
 
   return resultGrid

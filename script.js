@@ -40,7 +40,8 @@
   };
 
   getResult2 = function(tiles) {
-    var buildMap, buildReverseResultGrid, map, move, placedTiles, resultGrid, reverseResultGrid, stepNumber, _i, _inner, _inner_iteration_count, _ref;
+    var buildMap, buildReverseResultGrid, delay, map, move, placedTiles, resultGrid, reverseResultGrid, stepNumber, _i, _inner, _inner_iteration_count, _ref;
+    delay = _options.draw_delay;
     buildMap = function() {
       var i, map, tile1, tile2, _i, _j, _len, _len1, _ref;
       map = {};
@@ -197,16 +198,22 @@
         }
       }
       console.log("map.length", Object.getOwnPropertyNames(map).length, copy(map));
-      return drawGrid(resultGrid);
+      if (delay) {
+        return drawGrid(resultGrid);
+      }
     };
     for (stepNumber = _i = 1, _ref = n_slices * n_slices - 1; 1 <= _ref ? _i <= _ref : _i >= _ref; stepNumber = 1 <= _ref ? ++_i : --_i) {
-      setTimeout(_inner, stepNumber * _options.draw_delay);
+      if (delay) {
+        setTimeout(_inner, stepNumber * _options.draw_delay);
+      } else {
+        _inner();
+      }
     }
     return resultGrid;
   };
 
   defaultOptions = {
-    draw_delay: 1000
+    draw_delay: 0
   };
 
   n_slices = 4;
@@ -485,6 +492,9 @@
       console.log("try again, attempt #" + (retries - _retries));
       resultGrid = getResult2(edgeData);
     }
+    if (!_options.draw_delay) {
+      drawGrid(resultGrid);
+    }
     return canvas;
   };
 
@@ -496,7 +506,7 @@
     return $('go').onclick = function() {
       $('canvas-container').removeChild(canvas);
       canvas = descrambleImg(img, {
-        draw_delay: 50
+        draw_delay: 500
       });
       return $('canvas-container').appendChild(canvas);
     };

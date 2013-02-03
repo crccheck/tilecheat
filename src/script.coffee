@@ -1,6 +1,6 @@
 # CONFIGURATION
 defaultOptions =
-  draw_delay: 1000
+  draw_delay: 0
 n_slices = 4
 retries = 0
 vignette_fix = 1  # black levels below this will have noise artificially added
@@ -240,7 +240,8 @@ exports.descrambleImg = (img, options) ->
     console.log "try again, attempt ##{retries - _retries}"
     resultGrid = getResult2(edgeData)
 
-  # drawGrid(resultGrid)
+  if !_options.draw_delay
+    drawGrid(resultGrid)
   return canvas
 
 
@@ -251,6 +252,6 @@ exports.main = ->
   $('go').onclick = ->
     $('canvas-container').removeChild(canvas)
     canvas = descrambleImg(img, {
-        draw_delay: 50
+        draw_delay: 500
       })
     $('canvas-container').appendChild(canvas)
