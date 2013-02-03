@@ -1,8 +1,8 @@
 # CONFIGURATION
 defaultOptions =
   draw_delay: 0
+  retries: 0
 n_slices = 4
-retries = 0
 vignette_fix = 1  # black levels below this will have noise artificially added
 
 # coffeescript scope hack
@@ -179,10 +179,10 @@ exports.descrambleImg = (img, options) ->
   imageData = c.getImageData(0, 0, _width, height)
   edgeData = getAllEdgeData imageData.data
 
-  _retries = retries
   resultGrid = getResult2(edgeData)
-  while _retries-- and !resultIsValid(resultGrid)
-    console.log "try again, attempt ##{retries - _retries}"
+  retries_counter = _options.retries
+  while retries_counter-- and !resultIsValid(resultGrid)
+    console.log "try again, attempt ##{_options.retries - retries_counter}"
     resultGrid = getResult2(edgeData)
 
   if !_options.draw_delay
