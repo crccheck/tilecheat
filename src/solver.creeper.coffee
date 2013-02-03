@@ -123,7 +123,7 @@ getResult2 = (tiles)->
 
   # for stepNumber in [1..11]
   for stepNumber in [1..(n_slices * n_slices - 1)]
-    setTimeout(_inner, stepNumber * draw_delay)
+    setTimeout(_inner, stepNumber * _options.draw_delay)
 
 
 

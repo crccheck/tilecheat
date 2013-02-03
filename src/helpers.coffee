@@ -16,3 +16,10 @@ copy = (o) ->
   for k, v of o
     r[k] = v
   return r
+
+
+# http://coffeescript.org/documentation/docs/helpers.html
+extend = (object, properties) ->
+  for key, val of properties
+    object[key] = val
+  object

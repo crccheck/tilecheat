@@ -1,14 +1,16 @@
 # CONFIGURATION
+defaultOptions =
+  draw_delay: 1000
 n_slices = 4
-vignette_fix = 1  # black levels below this will have noise artificially added
 retries = 0
-draw_delay = 1000
+vignette_fix = 1  # black levels below this will have noise artificially added
 
 # coffeescript scope hack
 slice_w = 0
 width = 0
 _srcImg = ""
 _dstCanvas = ""
+_options = {}
 
 
 # ###Interacting with a pixel array
@@ -217,6 +219,8 @@ exports = this
 
 
 exports.descrambleImg = (img, options) ->
+  extend _options, defaultOptions
+  extend _options, options
   _srcImg = img
   width = height = img.width
   slice_w = width / n_slices
@@ -246,5 +250,7 @@ exports.main = ->
   $('canvas-container').appendChild(canvas)
   $('go').onclick = ->
     $('canvas-container').removeChild(canvas)
-    canvas = descrambleImg(img)
+    canvas = descrambleImg(img, {
+        draw_delay: 50
+      })
     $('canvas-container').appendChild(canvas)
