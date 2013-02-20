@@ -1,6 +1,6 @@
 
 build:
-	coffee -c script.coffee
+	coffee --compile --join script.coffee src/
 
 
 dev: docs
